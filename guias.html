@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Mochila72 · Guías</title>
+<style>
+:root{--verde:#4CAF50; --naranja:#FF6B00; --negro:#121212; --borde:rgba(255,255,255,.12)}
+*{box-sizing:border-box} html,body{height:100%;margin:0}
+body{background:linear-gradient(180deg,#0f120f,#151515);color:#eee;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}
+a{color:inherit;text-decoration:none}
+.btn{background:var(--naranja);color:#fff;border:none;border-radius:10px;padding:8px 10px;font-weight:800;cursor:pointer}
+.btn.ghost{background:transparent;border:1px solid var(--borde);color:#ddd}
+.badge{background:#1f1f1f;border:1px solid var(--borde);padding:2px 8px;border-radius:999px;font-size:12px}
+
+/* Top */
+.top{position:sticky;top:0;z-index:40;display:grid;grid-template-rows:10vh 6.5vh;border-bottom:1px solid var(--borde);background:linear-gradient(180deg,rgba(0,0,0,.75),rgba(0,0,0,.55))}
+.banner{position:relative;height:10vh;overflow:hidden;background:url('https://images.unsplash.com/photo-1519887390363-c0c1fbfff43e?auto=format&fit=crop&w=1600&q=70') center/cover no-repeat}
+.banner::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.65),rgba(0,0,0,.35))}
+.logo{position:absolute;inset:0;display:flex;align-items:center;gap:10px;padding:0 14px;font-weight:900}
+.logoDot{width:28px;height:28px;border-radius:8px;background:var(--verde);display:grid;place-items:center;color:#000}
+.topbar{display:grid;grid-template-columns:1fr 1fr 320px;gap:8px;align-items:center;padding:6px 10px;height:6.5vh}
+.pills{display:flex;gap:6px;align-items:center;overflow:auto}
+.pill{padding:8px 10px;border-radius:999px;border:1px solid var(--borde);background:#161616;cursor:pointer;white-space:nowrap}
+.pill.active{background:rgba(255,107,0,.2);border-color:var(--naranja)}
+.search{display:flex;gap:6px;align-items:center}
+.search input{flex:1;padding:10px;border-radius:10px;border:1px solid var(--borde);background:#1a1a1a;color:#eee}
+.env{display:flex;gap:6px;align-items:center;justify-content:flex-end}
+
+/* Body */
+.body{height:calc(100vh - 16.5vh);display:grid;grid-template-columns:1fr;gap:10px;padding:10px}
+@media(min-width:1160px){.body{grid-template-columns:260px 1fr}}
+aside{background:#121212;border:1px solid var(--borde);border-radius:12px;overflow:auto}
+main{background:#121212;border:1px solid var(--borde);border-radius:12px;padding:10px;display:flex;flex-direction:column;min-width:0}
+.h3{font-weight:900;margin:8px 0 10px}
+.section{border:1px solid var(--borde);border-radius:10px;padding:8px;margin-bottom:8px;background:#151515}
+.section .title{font-weight:900;margin-bottom:6px}
+.section select,.section input[type="search"]{width:100%;padding:8px;border-radius:8px;border:1px solid var(--borde);background:#1a1a1a;color:#eee}
+
+/* Chips */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.chip{background:#1b1b1b;border:1px solid var(--borde);padding:4px 8px;border-radius:999px;font-size:12px}
+.chip button{margin-left:6px;background:transparent;border:none;color:#aaa;cursor:pointer}
+
+/* Grid */
+.info{display:flex;justify-content:space-between;align-items:center;color:#9aa;font-size:14px;margin-bottom:8px}
+.grid{display:grid;grid-template-columns:repeat(1,1fr);gap:10px;overflow:auto}
+@media(min-width:720px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1280px){.grid{grid-template-columns:repeat(3,1fr)}}
+.card{background:#141414;border:1px solid var(--borde);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.thumb{aspect-ratio:16/9;background:#0d0d0d;display:grid;place-items:center;color:#aaa}
+.cardBody{padding:10px;display:flex;flex-direction:column;gap:6px}
+.meta{display:flex;gap:8px;flex-wrap:wrap;color:#aab;font-size:12px}
+.actions{display:flex;gap:8px;margin-top:6px}
+</style>
+</head>
+<body>
+
+<!-- TOP -->
+<div class="top">
+  <div class="banner"><div class="logo"><div class="logoDot">M72</div> Guías y Manuales (modo prueba)</div></div>
+  <div class="topbar">
+    <div class="pills" id="catMenu"></div>
+    <div class="search">
+      <input id="q" type="search" placeholder="Buscar: plantas, hemorragias, tarp..." list="dl">
+      <datalist id="dl"></datalist>
+      <button class="btn" id="btnSearch">Buscar</button>
+      <button class="btn ghost" id="btnReset">Reset</button>
+    </div>
+    <div class="env">
+      <span class="badge">Entorno</span>
+      <button class="pill" data-env="Urbano" id="envU">Urbano</button>
+      <button class="pill" data-env="Campo" id="envC">Campo</button>
+      <a class="btn ghost" href="videos.html">Ir a Vídeos</a>
+    </div>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="body">
+  <aside>
+    <div style="padding:10px">
+      <div class="h3">Filtros</div>
+      <div class="section">
+        <div class="title">Nivel</div>
+        <select id="fLevel">
+          <option value="">(cualquiera)</option>
+          <option>Básico</option><option>Intermedio</option><option>Avanzado</option>
+        </select>
+      </div>
+      <div class="section">
+        <div class="title">Formato</div>
+        <select id="fFormat">
+          <option value="">(cualquiera)</option>
+          <option>Artículo</option>
+          <option>Checklist</option>
+          <option>PDF descargable</option>
+        </select>
+      </div>
+      <div class="section">
+        <div class="title">Idioma</div>
+        <select id="fLang">
+          <option value="">(cualquiera)</option>
+          <option>ES</option><option>EN</option>
+        </select>
+      </div>
+      <button class="btn" id="apply">Aplicar</button>
+    </div>
+  </aside>
+
+  <main>
+    <div class="info"><div>Categoría: <strong id="catName">Todas</strong> · Entorno: <strong id="envName">—</strong></div><div id="count">0 guías</div></div>
+    <div class="chips" id="chips"></div>
+    <div id="grid" class="grid"></div>
+  </main>
+</div>
+
+<script>
+/* ===== DATA ===== */
+const GUIAS = [
+  {id:'g-hoguera', title:'Construcción segura de hogueras', desc:'Tipos de hoguera, seguridad, recogida y extinción.', category:'Fuego', level:'Básico', env:'Campo', lang:'ES', format:'PDF descargable', url:'docs/hoguera.pdf', relatedVideoId:'y5nKxG9vVjE'},
+  {id:'g-agua', title:'Potabilización: campo y ciudad', desc:'Filtros, químicos, hervido, errores frecuentes.', category:'Agua', level:'Básico', env:'Urbano', lang:'ES', format:'Artículo', url:'#', relatedVideoId:'rAq1v0U8Qcc'},
+  {id:'g-pesca', title:'Pesca de emergencia', desc:'Aparejos mínimos, improvisación y ética.', category:'Caza/Pesca', level:'Intermedio', env:'Campo', lang:'ES', format:'Checklist', url:'#', relatedVideoId:'JvZb7m0aaT8'},
+  {id:'g-afilar', title:'Afilado de cuchillos en campo', desc:'Ángulos, materiales y mantenimiento.', category:'Herramientas', level:'Básico', env:'Campo', lang:'ES', format:'Artículo', url:'#', relatedVideoId:'4sUZQ1kMM00'},
+  {id:'g-tarp', title:'Refugio rápido con tarp', desc:'5 configuraciones y nudos clave.', category:'Refugio', level:'Intermedio', env:'Campo', lang:'ES', format:'PDF descargable', url:'docs/tarp.pdf', relatedVideoId:'3E5H1B9ccAA'},
+  {id:'g-nav', title:'Orientación con mapa y brújula', desc:'Rumbos, curvas de nivel y práctica.', category:'Navegación', level:'Básico', env:'Campo', lang:'ES', format:'Artículo', url:'#', relatedVideoId:'eU4qk5LLLaa'},
+  {id:'g-hem', title:'Control de hemorragias', desc:'Torniquetes, compresión, prioridades.', category:'Primeros auxilios', level:'Intermedio', env:'Urbano', lang:'ES', format:'PDF descargable', url:'docs/hemorragias.pdf', relatedVideoId:'9vbQq1XXaaA'},
+  {id:'g-plantas', title:'Plantas útiles y riesgos', desc:'Identificación segura y usos básicos.', category:'Plantas y recursos', level:'Básico', env:'Campo', lang:'ES', format:'Artículo', url:'#', relatedVideoId:'xP2LeZ2Labc'},
+];
+
+const CATEGORIES = ["Todas","Agua","Fuego","Refugio","Herramientas","Navegación","Primeros auxilios","Caza/Pesca","Plantas y recursos"];
+
+/* ===== STATE ===== */
+const SKEY='m72_guid_';
+const state = {
+  env: localStorage.getItem(SKEY+'env') || 'Urbano',
+  cat: localStorage.getItem(SKEY+'cat') || 'Todas',
+  q: localStorage.getItem(SKEY+'q') || '',
+  level: localStorage.getItem(SKEY+'level') || '',
+  format: localStorage.getItem(SKEY+'fmt') || '',
+  lang: localStorage.getItem(SKEY+'lang') || ''
+};
+function persist(){
+  localStorage.setItem(SKEY+'env', state.env);
+  localStorage.setItem(SKEY+'cat', state.cat);
+  localStorage.setItem(SKEY+'q', state.q);
+  localStorage.setItem(SKEY+'level', state.level);
+  localStorage.setItem(SKEY+'fmt', state.format);
+  localStorage.setItem(SKEY+'lang', state.lang);
+}
+
+/* ===== UI ===== */
+const $=s=>document.querySelector(s);
+const grid=$('#grid'), catMenu=$('#catMenu'), chips=$('#chips');
+const envU=$('#envU'), envC=$('#envC');
+const q=$('#q'), fLevel=$('#fLevel'), fFormat=$('#fFormat'), fLang=$('#fLang');
+
+function init(){
+  // Menú categorías
+  catMenu.innerHTML = CATEGORIES.map(c=>`<button class="pill ${state.cat===c?'active':''}" data-cat="${c}">${c}</button>`).join('');
+  catMenu.querySelectorAll('[data-cat]').forEach(b=> b.addEventListener('click',()=>{ state.cat=b.dataset.cat; persist(); build(); }));
+
+  // Entorno
+  function paintEnv(){ envU.classList.toggle('active',state.env==='Urbano'); envC.classList.toggle('active',state.env==='Campo'); $('#envName').textContent=state.env; }
+  [envU,envC].forEach(b=> b.addEventListener('click',()=>{ state.env=b.dataset.env; persist(); build(); paintEnv(); }));
+  paintEnv();
+
+  // Search + filtros
+  q.value = state.q; q.addEventListener('keydown',e=>{ if(e.key==='Enter'){ state.q=q.value.trim(); persist(); build(); }});
+  $('#btnSearch').addEventListener('click',()=>{ state.q=q.value.trim(); persist(); build(); });
+  $('#btnReset').addEventListener('click',()=>{ state.q=''; q.value=''; state.level=''; fLevel.value=''; state.format=''; fFormat.value=''; state.lang=''; fLang.value=''; persist(); build(); });
+  fLevel.value = state.level; fLevel.addEventListener('change',()=>{ state.level=fLevel.value; persist(); build(); });
+  fFormat.value = state.format; fFormat.addEventListener('change',()=>{ state.format=fFormat.value; persist(); build(); });
+  fLang.value = state.lang; fLang.addEventListener('change',()=>{ state.lang=fLang.value; persist(); build(); });
+
+  // datalist
+  $('#dl').innerHTML = GUIAS.map(g=>`<option value="${g.title}">`).join('');
+
+  // Si llega ?open=ID abrir/scroll
+  const url = new URL(location.href);
+  const open = url.searchParams.get('open');
+  if(open){ state.q=''; persist(); build(open); }
+  else build();
+}
+
+function build(openId){
+  // chips
+  const ch=[];
+  if(state.cat!=='Todas') ch.push(['cat',`Categoría: ${state.cat}`]);
+  if(state.q) ch.push(['q',`Texto: “${state.q}”`]);
+  if(state.level) ch.push(['level',`Nivel: ${state.level}`]);
+  if(state.format) ch.push(['fmt',`Formato: ${state.format}`]);
+  if(state.lang) ch.push(['lang',`Idioma: ${state.lang}`]);
+  chips.innerHTML = ch.map(([k,txt])=>`<span class="chip">${txt}<button data-x="${k}">✕</button></span>`).join('');
+  chips.querySelectorAll('[data-x]').forEach(b=> b.addEventListener('click',()=>{
+    const k=b.dataset.x; if(k==='cat') state.cat='Todas';
+    if(k==='q') state.q=''; if(k==='level') state.level=''; if(k==='fmt') state.format=''; if(k==='lang') state.lang='';
+    persist(); init();
+  }));
+
+  // filtro
+  let list = GUIAS.slice();
+  if(state.cat!=='Todas') list = list.filter(g=> g.category===state.cat);
+  if(state.env) list = list.filter(g=> g.env===state.env);
+  if(state.level) list = list.filter(g=> g.level===state.level);
+  if(state.format) list = list.filter(g=> g.format===state.format);
+  if(state.lang) list = list.filter(g=> g.lang===state.lang);
+  if(state.q){ const s=state.q.toLowerCase(); list = list.filter(g=> (g.title+g.desc).toLowerCase().includes(s)); }
+
+  $('#count').textContent = `${list.length} guías`;
+  $('#catName').textContent = state.cat;
+
+  grid.innerHTML = list.map(g=>{
+    const cover = coverFor(g.category);
+    return `<article class="card" id="${g.id}">
+      <div class="thumb" style="background-image:url('${cover}');background-size:cover;background-position:center">
+        <div style="background:rgba(0,0,0,.45);padding:4px 8px;border-radius:999px">${g.category}</div>
+      </div>
+      <div class="cardBody">
+        <strong>${g.title}</strong>
+        <div style="opacity:.85">${g.desc}</div>
+        <div class="meta">
+          <span class="badge">${g.env}</span>
+          <span class="badge">${g.level}</span>
+          <span class="badge">${g.lang}</span>
+          <span class="badge">${g.format}</span>
+        </div>
+        <div class="actions">
+          ${g.url && g.url!=='#' ? `<a class="btn" href="${g.url}" target="_blank" rel="noopener">Abrir</a>` : ''}
+          ${g.relatedVideoId ? `<a class="btn ghost" href="videos.html" data-openvid="${g.relatedVideoId}">Ver vídeo</a>` : ''}
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+
+  // scroll a guía si se pidió
+  if(openId){
+    const el = document.getElementById(openId);
+    if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.style.outline='2px solid var(--naranja)'; setTimeout(()=>el.style.outline='none',1800); }
+  }
+
+  // manejar "Ver vídeo" manteniendo filtros
+  grid.querySelectorAll('[data-openvid]').forEach(a=>{
+    a.addEventListener('click',(e)=>{
+      e.preventDefault();
+      // Guardamos intención de abrir ese vídeo (se abre en vídeos con modal autoplay)
+      const id=a.getAttribute('data-openvid');
+      sessionStorage.setItem('m72_open_video', id);
+      location.href='videos.html';
+    });
+  });
+}
+
+function coverFor(cat){
+  const u = {
+    'Agua':'https://images.unsplash.com/photo-1508182311256-e3f6c1d0b6fd?auto=format&fit=crop&w=1200&q=70',
+    'Fuego':'https://images.unsplash.com/photo-1523920290228-4f321a939b98?auto=format&fit=crop&w=1200&q=70',
+    'Refugio':'https://images.unsplash.com/photo-1499696010180-025ef6e1a8f6?auto=format&fit=crop&w=1200&q=70',
+    'Herramientas':'https://images.unsplash.com/photo-1516826957135-700dedea698c?auto=format&fit=crop&w=1200&q=70',
+    'Navegación':'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=70',
+    'Primeros auxilios':'https://images.unsplash.com/photo-1512678080530-7760d81faba6?auto=format&fit=crop&w=1200&q=70',
+    'Caza/Pesca':'https://images.unsplash.com/photo-1452570053594-1b985d6ea890?auto=format&fit=crop&w=1200&q=70',
+    'Plantas y recursos':'https://images.unsplash.com/photo-1486627215254-593fdc834d6c?auto=format&fit=crop&w=1200&q=70'
+  }[cat] || 'https://images.unsplash.com/photo-1520975922284-5f1d4f6c11b6?auto=format&fit=crop&w=1200&q=70';
+  return u;
+}
+
+// Si venimos desde vídeos con intención de abrir un vídeo:
+(function maybeOpenVideo(){
+  const id = sessionStorage.getItem('m72_open_video');
+  if(!id) return;
+  sessionStorage.removeItem('m72_open_video');
+  // Redirigir al vídeo con ?open= no es necesario; dejamos navegación normal.
+})();
+
+// init
+init();
+</script>
+</body>
+</html>

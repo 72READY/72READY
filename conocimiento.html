@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Mochila72 · Vídeos y Guías</title>
+<style>
+:root{
+  --verde:#4CAF50; --naranja:#FF6B00; --negro:#121212; --borde:rgba(255,255,255,.12);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:linear-gradient(180deg,#0f120f,#151515);color:#eee;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}
+a{color:inherit;text-decoration:none}
+.btn{background:var(--naranja);color:#fff;border:none;border-radius:10px;padding:8px 10px;font-weight:800;cursor:pointer}
+.btn.ghost{background:transparent;border:1px solid var(--borde);color:#ddd}
+.badge{background:#1f1f1f;border:1px solid var(--borde);padding:2px 8px;border-radius:999px;font-size:12px}
+
+/* Top (banner + barra) */
+.top{position:sticky;top:0;z-index:40;display:grid;grid-template-rows:10vh 6.5vh;border-bottom:1px solid var(--borde);background:linear-gradient(180deg,rgba(0,0,0,.75),rgba(0,0,0,.55))}
+.banner{position:relative;height:10vh;overflow:hidden;background:url('https://images.unsplash.com/photo-1519887390363-c0c1fbfff43e?auto=format&fit=crop&w=1600&q=70') center/cover no-repeat}
+.banner::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.65),rgba(0,0,0,.35))}
+.logo{position:absolute;inset:0;display:flex;align-items:center;gap:10px;padding:0 14px;font-weight:900}
+.logoDot{width:28px;height:28px;border-radius:8px;background:var(--verde);display:grid;place-items:center;color:#000}
+.topbar{display:grid;grid-template-columns:1fr 1fr 380px;gap:8px;align-items:center;padding:6px 10px;height:6.5vh}
+.pills{display:flex;gap:6px;align-items:center;overflow:auto}
+.pill{padding:8px 10px;border-radius:999px;border:1px solid var(--borde);background:#161616;cursor:pointer;white-space:nowrap}
+.pill.active{background:rgba(255,107,0,.2);border-color:var(--naranja)}
+.mode{display:flex;gap:6px;align-items:center;justify-content:center}
+.mode .pill{min-width:100px;text-align:center}
+.search{display:flex;gap:6px;align-items:center}
+.search input{flex:1;padding:10px;border-radius:10px;border:1px solid var(--borde);background:#1a1a1a;color:#eee}
+
+/* Body */
+.body{height:calc(100vh - 16.5vh);display:grid;grid-template-columns:1fr;gap:10px;padding:10px}
+main{background:#121212;border:1px solid var(--borde);border-radius:12px;padding:10px;display:flex;flex-direction:column;min-width:0}
+.info{display:flex;justify-content:space-between;align-items:center;color:#9aa;font-size:14px;margin-bottom:8px;flex-wrap:wrap;gap:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.chip{background:#1b1b1b;border:1px solid var(--borde);padding:4px 8px;border-radius:999px;font-size:12px}
+.chip button{margin-left:6px;background:transparent;border:none;color:#aaa;cursor:pointer}
+
+/* Grid */
+.grid{display:grid;grid-template-columns:repeat(1,1fr);gap:10px;overflow:auto}
+@media(min-width:720px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1280px){.grid{grid-template-columns:repeat(3,1fr)}}
+.card{background:#141414;border:1px solid var(--borde);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.thumb{aspect-ratio:16/9;background:#0d0d0d;overflow:hidden;position:relative}
+.thumb img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+.card:hover .thumb img{transform:scale(1.04)}
+.thumb .tag{position:absolute;left:8px;top:8px;background:rgba(0,0,0,.55);border:1px solid var(--borde);padding:2px 8px;border-radius:999px;font-size:12px}
+.cardBody{padding:10px;display:flex;flex-direction:column;gap:6px}
+.meta{display:flex;gap:8px;flex-wrap:wrap;color:#aab;font-size:12px}
+.actions{display:flex;gap:8px;margin-top:6px}
+
+/* Modal vídeo */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;padding:20px;z-index:100}
+.modalInner{background:#000;border-radius:12px;max-width:960px;width:100%;overflow:hidden}
+.modalHead{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#111;color:#eee}
+.modalBody{position:relative;padding-top:56.25%}
+.modalBody iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+</style>
+</head>
+<body>
+
+<!-- TOP -->
+<div class="top">
+  <div class="banner"><div class="logo"><div class="logoDot">M72</div> Vídeos y Guías (modo prueba)</div></div>
+  <div class="topbar">
+    <!-- Secciones -->
+    <div class="pills" id="secMenu"></div>
+    <!-- Modo -->
+    <div class="mode">
+      <button class="pill" data-mode="Videos" id="mVideos">Vídeos</button>
+      <button class="pill" data-mode="Guías" id="mGuias">Guías</button>
+    </div>
+    <!-- Búsqueda -->
+    <div class="search">
+      <input id="q" type="search" placeholder="Buscar: fuego, pesca, afilar, plantas..." list="dl">
+      <datalist id="dl"></datalist>
+      <button class="btn" id="btnSearch">Buscar</button>
+      <button class="btn ghost" id="btnReset">Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="body">
+  <main>
+    <div class="info">
+      <div>Sección: <strong id="secName">Destacados</strong> · Modo: <strong id="modeName">Vídeos</strong></div>
+      <div id="count">0 items</div>
+    </div>
+    <div class="chips" id="chips"></div>
+    <div id="grid" class="grid"></div>
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modalInner">
+    <div class="modalHead"><div id="modalTitle">Reproducir</div><button class="btn ghost" id="closeModal">Cerrar</button></div>
+    <div class="modalBody" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+/* ================= DATA ================= */
+/* Categorías / secciones disponibles (orden de menú) */
+const SECCIONES = ["Destacados","Agua","Fuego","Refugio","Herramientas","Navegación","Primeros auxilios","Caza/Pesca","Plantas y recursos"];
+
+/* Vídeos: añade los que quieras. 'featured:true' para Destacados */
+const VIDEOS = [
+  // DESTACADOS (youtubers conocidos de bushcraft/supervivencia; IDs de ejemplo)
+  {id:'feat1', yt:'dQw4w9WgXcQ', title:'Bushcraft: refugio con tarp en 7 configuraciones', desc:'Técnicas de montaje rápido y seguro.', category:'Refugio', level:'Intermedio', lang:'ES', durationMin:12, tags:['tarp','nudos'], featured:true, channel:'Bushcraft ES'},
+  {id:'feat2', yt:'kXYiU_JCYtU', title:'Kit minimalista 72h: qué llevar y por qué', desc:'Selección realista y modular.', category:'Herramientas', level:'Básico', lang:'ES', durationMin:14, tags:['72h','kit'], featured:true, channel:'Supervivencia Pro'},
+  {id:'feat3', yt:'3JZ_D3ELwOQ', title:'Fuego bajo lluvia: yesca natural y ferrocerio', desc:'Estrategias y errores frecuentes.', category:'Fuego', level:'Intermedio', lang:'ES', durationMin:11, tags:['ferrocerio','lluvia'], featured:true, channel:'Bushcraft Iberia'},
+
+  // Agua
+  {id:'agua1', yt:'rAq1v0U8Qcc', title:'Filtrar agua con LifeStraw/Sawyer', desc:'Uso, mantenimiento y errores comunes.', category:'Agua', level:'Básico', lang:'ES', durationMin:8, tags:['filtro','agua','lifestraw']},
+  {id:'agua2', yt:'9Qy4QzQf0xy', title:'Potabilización en ciudad: pastillas y hervido', desc:'Qué usar y cuándo en entorno urbano.', category:'Agua', level:'Básico', lang:'ES', durationMin:6, tags:['pastillas','hervir']},
+
+  // Fuego
+  {id:'fue1', yt:'y5nKxG9vVjE', title:'Hoguera con ferrocerio (paso a paso)', desc:'Yesca, preparación y seguridad.', category:'Fuego', level:'Básico', lang:'ES', durationMin:9, tags:['ferrocerio','hoguera']},
+  {id:'fue2', yt:'l1z1J3m3abc', title:'Alternativas al fuego en ciudad', desc:'Cocción segura y normativa.', category:'Fuego', level:'Intermedio', lang:'ES', durationMin:7, tags:['urbano','seguridad']},
+
+  // Herramientas
+  {id:'her1', yt:'4sUZQ1kMM00', title:'Afilado de cuchillos en campo', desc:'Piedra, ángulos, mantenimiento.', category:'Herramientas', level:'Básico', lang:'ES', durationMin:10, tags:['cuchillo','afilar']},
+  {id:'her2', yt:'9m7tTRtR2X2', title:'Multiherramienta: 10 usos críticos', desc:'Casos reales de uso.', category:'Herramientas', level:'Básico', lang:'ES', durationMin:8, tags:['multiherramienta']},
+
+  // Refugio
+  {id:'ref1', yt:'3E5H1B9ccAA', title:'Montar un tarp en 5 configuraciones', desc:'Refugio rápido para lluvia/viento.', category:'Refugio', level:'Intermedio', lang:'ES', durationMin:13, tags:['tarp','nudos']},
+
+  // Navegación
+  {id:'nav1', yt:'eU4qk5LLLaa', title:'Orientación con mapa y brújula', desc:'Rumbos y declinación.', category:'Navegación', level:'Básico', lang:'ES', durationMin:14, tags:['brújula','mapa']},
+
+  // Primeros auxilios
+  {id:'med1', yt:'9vbQq1XXaaA', title:'Control de hemorragias', desc:'Torniquete, compresión.', category:'Primeros auxilios', level:'Intermedio', lang:'ES', durationMin:10, tags:['hemorragias','botiquín']},
+
+  // Caza/Pesca
+  {id:'pes1', yt:'JvZb7m0aaT8', title:'Kit de pesca compacto', desc:'Línea, anzuelos y señuelos.', category:'Caza/Pesca', level:'Intermedio', lang:'ES', durationMin:12, tags:['pesca','kit']},
+  {id:'pes2', yt:'iQ2f_7vvzzz', title:'Improvisar una caña con paracord', desc:'Materiales mínimos y técnica.', category:'Caza/Pesca', level:'Intermedio', lang:'ES', durationMin:11, tags:['paracord','improvisar']},
+
+  // Plantas y recursos
+  {id:'pla1', yt:'xP2LeZ2Labc', title:'Plantas útiles: identificación segura', desc:'Precauciones y usos.', category:'Plantas y recursos', level:'Básico', lang:'ES', durationMin:9, tags:['plantas','identificación']},
+];
+
+/* Guías / Manuales (pueden enlazar a vídeo relacionado) */
+const GUIAS = [
+  {id:'g-hoguera', title:'Construcción segura de hogueras', desc:'Tipos de hoguera, seguridad, extinción.', category:'Fuego', level:'Básico', lang:'ES', format:'PDF', url:'#', relatedVideoId:'y5nKxG9vVjE'},
+  {id:'g-agua', title:'Potabilización: campo y ciudad', desc:'Filtros, químicos, hervido.', category:'Agua', level:'Básico', lang:'ES', format:'Artículo', url:'#', relatedVideoId:'rAq1v0U8Qcc'},
+  {id:'g-pesca', title:'Pesca de emergencia', desc:'Aparejos mínimos, improvisación.', category:'Caza/Pesca', level:'Intermedio', lang:'ES', format:'Checklist', url:'#', relatedVideoId:'JvZb7m0aaT8'},
+  {id:'g-afilar', title:'Afilado de cuchillos en campo', desc:'Ángulos, materiales.', category:'Herramientas', level:'Básico', lang:'ES', format:'Artículo', url:'#', relatedVideoId:'4sUZQ1kMM00'},
+  {id:'g-tarp', title:'Refugio rápido con tarp', desc:'5 configuraciones y nudos.', category:'Refugio', level:'Intermedio', lang:'ES', format:'PDF', url:'#', relatedVideoId:'3E5H1B9ccAA'},
+  {id:'g-nav', title:'Orientación con mapa y brújula', desc:'Rumbos y curvas de nivel.', category:'Navegación', level:'Básico', lang:'ES', format:'Artículo', url:'#', relatedVideoId:'eU4qk5LLLaa'},
+  {id:'g-hem', title:'Control de hemorragias', desc:'Torniquetes y compresión.', category:'Primeros auxilios', level:'Intermedio', lang:'ES', format:'PDF', url:'#', relatedVideoId:'9vbQq1XXaaA'},
+  {id:'g-plantas', title:'Plantas útiles y riesgos', desc:'Identificación y usos.', category:'Plantas y recursos', level:'Básico', lang:'ES', format:'Artículo', url:'#', relatedVideoId:'xP2LeZ2Labc'},
+];
+
+/* ================= STATE ================= */
+const SKEY='m72_kn_';
+const state = {
+  sec: localStorage.getItem(SKEY+'sec') || 'Destacados',
+  mode: localStorage.getItem(SKEY+'mode') || 'Vídeos',
+  q: localStorage.getItem(SKEY+'q') || ''
+};
+function persist(){
+  localStorage.setItem(SKEY+'sec', state.sec);
+  localStorage.setItem(SKEY+'mode', state.mode);
+  localStorage.setItem(SKEY+'q', state.q);
+}
+
+/* ================= UI HOOKS ================= */
+const $=s=>document.querySelector(s);
+const secMenu=$('#secMenu'), grid=$('#grid'), chips=$('#chips');
+const mVideos=$('#mVideos'), mGuias=$('#mGuias');
+const q=$('#q');
+
+function init(){
+  // Render secciones
+  secMenu.innerHTML = SECCIONES.map(s=>`<button class="pill ${state.sec===s?'active':''}" data-sec="${s}">${s}</button>`).join('');
+  secMenu.querySelectorAll('[data-sec]').forEach(b=> b.addEventListener('click',()=>{ state.sec=b.dataset.sec; persist(); build(); paintTop(); }));
+
+  // Mode pills
+  [mVideos,mGuias].forEach(b=> b.addEventListener('click',()=>{ state.mode = b.dataset.mode; persist(); build(); paintTop(); }));
+  paintTop();
+
+  // Search
+  q.value = state.q;
+  $('#dl').innerHTML = [...VIDEOS.map(v=>v.title), ...GUIAS.map(g=>g.title)].map(t=>`<option value="${t}">`).join('');
+  q.addEventListener('keydown',e=>{ if(e.key==='Enter'){ state.q=q.value.trim(); persist(); build(); }});
+  $('#btnSearch').addEventListener('click',()=>{ state.q=q.value.trim(); persist(); build(); });
+  $('#btnReset').addEventListener('click',()=>{ state.q=''; q.value=''; persist(); build(); });
+
+  build();
+}
+function paintTop(){
+  mVideos.classList.toggle('active', state.mode==='Vídeos');
+  mGuias.classList.toggle('active', state.mode==='Guías');
+  $('#secName').textContent = state.sec;
+  $('#modeName').textContent = state.mode;
+}
+
+/* ================= RENDER ================= */
+function build(){
+  // chips
+  const ch=[];
+  if(state.sec && state.sec!=='Destacados') ch.push(['sec',`Sección: ${state.sec}`]);
+  if(state.q) ch.push(['q',`Texto: “${state.q}”`]);
+  chips.innerHTML = ch.map(([k,txt])=>`<span class="chip">${txt}<button data-x="${k}">✕</button></span>`).join('');
+  chips.querySelectorAll('[data-x]').forEach(b=> b.addEventListener('click',()=>{
+    const k=b.dataset.x; if(k==='sec') state.sec='Destacados';
+    if(k==='q') state.q='';
+    persist(); init();
+  }));
+
+  const search = (t)=> t.toLowerCase().includes((state.q||'').toLowerCase());
+
+  if(state.mode==='Vídeos'){
+    let list = VIDEOS.slice();
+    if(state.sec!=='Destacados') list = list.filter(v=> v.category===state.sec);
+    if(state.sec==='Destacados') list = list.filter(v=> v.featured);
+    if(state.q) list = list.filter(v=> search((v.title+' '+v.desc+' '+v.tags.join(' '))));
+    $('#count').textContent = `${list.length} vídeos`;
+    grid.innerHTML = list.map(v=>{
+      const thumb = `https://img.youtube.com/vi/${v.yt}/hqdefault.jpg`;
+      return `<article class="card">
+        <div class="thumb">
+          <img src="${thumb}" alt="${v.title}">
+          <span class="tag">${state.sec==='Destacados'?'Destacado':v.category}</span>
+        </div>
+        <div class="cardBody">
+          <strong>${v.title}</strong>
+          <div style="opacity:.85">${v.desc}</div>
+          <div class="meta">
+            <span class="badge">${v.level}</span>
+            <span class="badge">${v.lang}</span>
+            <span class="badge">${v.durationMin} min</span>
+            ${v.channel?`<span class="badge">${v.channel}</span>`:''}
+          </div>
+          <div class="actions">
+            <button class="btn" data-play="${v.yt}" data-title="${v.title}">Ver</button>
+            ${linkGuideForVideo(v) ? `<a class="btn ghost" href="#" data-goto="${linkGuideForVideo(v)}">Ver guía</a>`:''}
+          </div>
+        </div>
+      </article>`;
+    }).join('');
+
+    // handlers
+    grid.querySelectorAll('[data-play]').forEach(b=>{
+      b.addEventListener('click',()=> openModal(b.dataset.play, b.dataset.title));
+    });
+    grid.querySelectorAll('[data-goto]').forEach(a=>{
+      a.addEventListener('click',(e)=>{ e.preventDefault(); // abre guía relacionada
+        const gid = a.getAttribute('data-goto'); openGuideInline(gid);
+      });
+    });
+
+  } else {
+    let list = GUIAS.slice();
+    if(state.sec!=='Destacados') list = list.filter(g=> g.category===state.sec);
+    if(state.sec==='Destacados') list = list.slice(0,6); // muestra algunas guías variadas
+    if(state.q) list = list.filter(g=> search((g.title+' '+g.desc)));
+    $('#count').textContent = `${list.length} guías`;
+    grid.innerHTML = list.map(g=>{
+      const cover = coverFor(g.category);
+      return `<article class="card" id="${g.id}">
+        <div class="thumb" style="background-image:url('${cover}');background-size:cover;background-position:center">
+          <span class="tag">${g.category}</span>
+        </div>
+        <div class="cardBody">
+          <strong>${g.title}</strong>
+          <div style="opacity:.85">${g.desc}</div>
+          <div class="meta">
+            <span class="badge">${g.level}</span>
+            <span class="badge">${g.lang}</span>
+            <span class="badge">${g.format}</span>
+          </div>
+          <div class="actions">
+            ${g.url && g.url!=='#' ? `<a class="btn" href="${g.url}" target="_blank" rel="noopener">Abrir</a>` : `<button class="btn" disabled>Próximamente</button>`}
+            ${g.relatedVideoId ? `<button class="btn ghost" data-openvid="${g.relatedVideoId}">Ver vídeo</button>`:''}
+          </div>
+        </div>
+      </article>`;
+    }).join('');
+
+    // abrir vídeo desde guía
+    grid.querySelectorAll('[data-openvid]').forEach(b=>{
+      b.addEventListener('click',()=> openModal(b.dataset.openvid, 'Reproducir'));
+    });
+  }
+}
+
+/* Helpers */
+function linkGuideForVideo(v){
+  const g = GUIAS.find(g=> g.relatedVideoId===v.yt);
+  return g?.id || '';
+}
+function coverFor(cat){
+  const u = {
+    'Agua':'https://images.unsplash.com/photo-1508182311256-e3f6c1d0b6fd?auto=format&fit=crop&w=1200&q=70',
+    'Fuego':'https://images.unsplash.com/photo-1523920290228-4f321a939b98?auto=format&fit=crop&w=1200&q=70',
+    'Refugio':'https://images.unsplash.com/photo-1499696010180-025ef6e1a8f6?auto=format&fit=crop&w=1200&q=70',
+    'Herramientas':'https://images.unsplash.com/photo-1516826957135-700dedea698c?auto=format&fit=crop&w=1200&q=70',
+    'Navegación':'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=70',
+    'Primeros auxilios':'https://images.unsplash.com/photo-1512678080530-7760d81faba6?auto=format&fit=crop&w=1200&q=70',
+    'Caza/Pesca':'https://images.unsplash.com/photo-1452570053594-1b985d6ea890?auto=format&fit=crop&w=1200&q=70',
+    'Plantas y recursos':'https://images.unsplash.com/photo-1486627215254-593fdc834d6c?auto=format&fit=crop&w=1200&q=70'
+  }[cat] || 'https://images.unsplash.com/photo-1520975922284-5f1d4f6c11b6?auto=format&fit=crop&w=1200&q=70';
+  return u;
+}
+
+/* Modal vídeo */
+function openModal(yt,title){
+  const m = document.getElementById('modal');
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = `<iframe src="https://www.youtube.com/embed/${yt}?autoplay=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+  m.style.display='flex';
+}
+document.getElementById('closeModal').addEventListener('click',()=>{
+  document.getElementById('modal').style.display='none';
+  document.getElementById('modalBody').innerHTML='';
+});
+
+/* Abrir guía vinculada “inline” (cambia a modo Guías y hace scroll) */
+function openGuideInline(gid){
+  state.mode='Guías'; persist(); build(); paintTop();
+  const el = document.getElementById(gid);
+  if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.style.outline='2px solid var(--naranja)'; setTimeout(()=>el.style.outline='none',1500); }
+}
+
+/* Kick-off */
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Mochila72 · Inicio</title>
+<style>
+:root{
+  --verde:#4CAF50; --naranja:#FF6B00; --negro:#121212; --borde:rgba(255,255,255,.12);
+}
+*{box-sizing:border-box} html,body{height:100%;margin:0}
+body{background:linear-gradient(180deg,#0f120f,#151515);color:#eee;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}
+a{color:inherit;text-decoration:none}
+
+.header{position:sticky;top:0;z-index:20}
+.banner{
+  height:32vh; min-height:220px; position:relative; overflow:hidden;
+  background:url('https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1600&q=70') center/cover no-repeat;
+  border-bottom:1px solid var(--borde);
+}
+.banner::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.6),rgba(0,0,0,.35))}
+.bannerInner{position:absolute; inset:0; display:grid; place-items:center; text-align:center; padding:0 16px}
+.logo{display:inline-grid;place-items:center;background:var(--verde);color:#000;font-weight:900;border-radius:12px;width:44px;height:44px;margin-bottom:8px}
+.title{font-size:clamp(22px,3.6vw,40px);font-weight:900}
+.subtitle{opacity:.9;margin-top:6px}
+
+.topRow{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#0e0e0e;border-bottom:1px solid var(--borde);padding:8px 12px}
+.env{display:flex;gap:6px;align-items:center}
+.pill{padding:6px 10px;border-radius:999px;border:1px solid var(--borde);background:#161616;cursor:pointer;font-size:14px}
+.pill.active{background:rgba(255,107,0,.2);border-color:var(--naranja)}
+.cta{display:flex;gap:8px}
+
+.wrap{padding:16px;max-width:1400px;margin:0 auto}
+.h2{font-size:20px;font-weight:900;margin:0 0 10px}
+.grid{display:grid;grid-template-columns:repeat(1,1fr);gap:12px}
+@media(min-width:700px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1100px){.grid{grid-template-columns:repeat(5,1fr)}}
+
+.card{background:#121212;border:1px solid var(--borde);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.cardImg{height:150px;background:#0d0d0d;overflow:hidden}
+.cardImg img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+.card:hover .cardImg img{transform:scale(1.05)}
+.cardBody{padding:10px;display:flex;flex-direction:column;gap:8px}
+.cardTitle{font-weight:900}
+.list{font-size:13px;color:#cbd3}
+.list li{margin:4px 0}
+.btn{background:var(--naranja);color:#fff;border:none;border-radius:10px;padding:8px 10px;font-weight:800;cursor:pointer}
+.badge{background:#1f1f1f;border:1px solid var(--borde);padding:2px 8px;border-radius:999px;font-size:12px}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="banner">
+    <div class="bannerInner">
+      <div>
+        <div class="logo">M72</div>
+        <div class="title">MODO PRUEBA INTERNA – Sin compras</div>
+        <div class="subtitle">Prepara tu mochila: urbana o de campo, elige según tu entorno</div>
+      </div>
+    </div>
+  </div>
+  <div class="topRow">
+    <div class="badge">Prepara tu mochila</div>
+    <div class="env">
+      <span>Entorno:</span>
+      <button class="pill active" data-env="Urbano">Urbano</button>
+      <button class="pill" data-env="Campo">Campo</button>
+    </div>
+    <div class="cta">
+      <a class="btn" href="productos.html">Ir a productos</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="h2">Mochilas</div>
+  <div id="grid" class="grid"><!-- cards --></div>
+  <div class="h2" style="margin-top:18px">Guías</div>
+  <div class="badge"><a href="videos.html">Vídeos y manuales</a></div>
+</main>
+
+<script>
+const PACKS = [
+  {key:'Objetos sueltos', img:'https://images.unsplash.com/photo-1520975922284-5f1d4f6c11b6?auto=format&fit=crop&w=1200&q=70'},
+  {key:'Paseo', img:'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=70'},
+  {key:'24h', img:'https://images.unsplash.com/photo-1445307806294-bff7f67ff225?auto=format&fit=crop&w=1200&q=70'},
+  {key:'72h', img:'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=70'},
+  {key:'Apocalipsis', img:'https://images.unsplash.com/photo-1519887390363-c0c1fbfff43e?auto=format&fit=crop&w=1200&q=70'}
+];
+
+const RECO = {
+  "Paseo Urbano": ["Linternas EDC","Powerbanks","Cantimploras","Multiherramientas","Botiquines","Higiene","Documentación"],
+  "Paseo Campo":  ["Filtros de agua","Cantimploras","Linternas","Encendido de fuego","Multiherramientas","Cuchillos","Botiquines","Paracord","Mapas"],
+  "24h Urbano":   ["Cantimploras","Químicos agua","Hornillos","Botiquines","Powerbanks","Radios","Higiene","Documentación"],
+  "24h Campo":    ["Filtros de agua","Hornillos","Encendido de fuego","Cuchillos","Multiherramientas","Saco ligero","Linternas","Botiquines","Paracord","Mapas"],
+  "72h Urbano":   ["Cantimploras","Químicos agua","Hornillos","Menaje","Saco ligero","Linternas","Paneles solares","Powerbanks","Radios","Botiquines","Documentación"],
+  "72h Campo":    ["Filtros de agua","Químicos agua","Hornillos","Menaje","Tienda/Tarp","Saco 0–10 ºC","Esterillas","Multiherramientas","Cuchillos","Sierras","Encendido de fuego","Paneles solares","Powerbanks","Radios","Botiquines","Paracord"],
+  "Apocalipsis Urbano": ["Filtros (paja/bomba)","Depósitos agua","Hornillos multifuel","Cocina completa","Saco 0–5 ºC","Tienda","Multiherramientas","Cuchillos","Hachas","Paneles solares","Powerbanks","Cargadores","Radios","Walkies","Botiquines avanzados","Higiene","Reparación","Documentación"],
+  "Apocalipsis Campo":  ["Filtros bomba","Químicos","Depósitos agua","Hornillos multifuel","Cocina completa","Tienda 3 estaciones","Saco -5–0 ºC","Multiherramientas","Cuchillos","Hachas","Sierras","Ferrocerio","Paneles solares","Powerbanks","Radios","Botiquines","Higiene","Reparación","Paracord"],
+  "Objetos sueltos Urbano": ["Multiherramientas","Linternas/Frontales","Cantimploras","Filtros de agua","Botiquines","Encendido","Manta térmica","Powerbanks"],
+  "Objetos sueltos Campo":  ["Filtros de agua","Cantimploras","Frontales","Encendido de fuego","Multiherramientas","Cuchillos","Manta térmica","Paracord"]
+};
+
+const grid = document.getElementById('grid');
+let env = localStorage.getItem('m72_env') || 'Urbano';
+document.querySelectorAll('[data-env]').forEach(b=>{
+  if(b.dataset.env===env) b.classList.add('active');
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('[data-env]').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active'); env = b.dataset.env; localStorage.setItem('m72_env', env); render();
+  });
+});
+function render(){
+  grid.innerHTML = PACKS.map(p=>{
+    const key = (p.key==='Objetos sueltos') ? `Objetos sueltos ${env}` : `${p.key} ${env}`;
+    const list = (RECO[key]||[]).slice(0,8);
+    const q = new URLSearchParams({pack:p.key, env}).toString();
+    return `
+    <article class="card">
+      <div class="cardImg"><img src="${p.img}" alt="${p.key}"></div>
+      <div class="cardBody">
+        <div class="cardTitle">${p.key} · ${env}</div>
+        <ul class="list">${list.map(i=>`<li>• ${i}</li>`).join('')}</ul>
+        <a class="btn" href="productos.html?${q}">Ver productos</a>
+      </div>
+    </article>`;
+  }).join('');
+}
+render();
+</script>
+</body>
+</html>

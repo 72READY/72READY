@@ -1,0 +1,1040 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Mochila72 - Prototipo de e-commerce de supervivencia (MODO PRUEBA)</title>
+<link rel="icon" href="data:,">
+<style>
+  :root{
+    --verde:#4CAF50;
+    --negro:#1A1A1A;
+    --naranja:#FF6B00;
+    --gris:#f3f3f3;
+    --card-bg: #ffffff;
+    --badge-amazon: #2e7d32; /* verde oscuro */
+    --badge-temu: #1976d2;   /* azul */
+    --badge-aliexpress: #ff5722;
+    --badge-decathlon: #0b8043;
+    --badge-mildot: #455a64;
+    --badge-sherman: #6a1b9a;
+    --transition: 220ms cubic-bezier(.2,.8,.2,1);
+    font-family: "Helvetica Neue", Arial, sans-serif;
+  }
+
+  /* Mobile-first */
+  html,body{
+    height:100%;
+    margin:0;
+    background: linear-gradient(180deg,#e9f0ea 0%, #f6f8f6 100%);
+    color:var(--negro);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+
+  .banner{
+    width:100%;
+    background: linear-gradient(90deg, rgba(76,175,80,0.12), rgba(255,107,0,0.06));
+    color:var(--negro);
+    padding:8px 12px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+    font-weight:600;
+  }
+  .banner .pill{background:var(--naranja); color:white; padding:4px 8px; border-radius:8px; font-size:12px;}
+
+  header{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    padding:12px;
+    position:sticky;
+    top:0;
+    background:rgba(255,255,255,0.95);
+    z-index:30;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+  }
+  .logo{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    font-weight:800;
+    color:var(--negro);
+    font-size:20px;
+  }
+  .logo .dot{width:40px; height:40px; border-radius:8px; background:var(--verde); color:white; display:flex; align-items:center; justify-content:center; font-weight:900; box-shadow: 0 4px 10px rgba(0,0,0,0.08);}
+
+  .search {
+    flex:1;
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+  .search input[type="search"]{
+    flex:1;
+    padding:10px 12px;
+    border-radius:8px;
+    border:1px solid rgba(0,0,0,0.08);
+    outline:none;
+    font-size:15px;
+    transition: box-shadow var(--transition);
+  }
+  .search input[type="search"]:focus{ box-shadow:0 6px 18px rgba(0,0,0,0.08); }
+
+  .btn {
+    background:var(--negro);
+    color:white;
+    border:none;
+    padding:10px 14px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:700;
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .btn:hover{ transform: translateY(-2px); box-shadow:0 8px 18px rgba(0,0,0,0.12); }
+  .btn.ghost{ background:transparent; color:var(--negro); border:1px solid rgba(0,0,0,0.06); font-weight:600; }
+
+  /* Layout */
+  .app{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    padding:12px;
+  }
+
+  .main{
+    display:flex;
+    gap:14px;
+    align-items:flex-start;
+  }
+
+  /* Sidebar mobile collapsible */
+  .sidebar {
+    width:100%;
+    background:transparent;
+    border-radius:10px;
+    padding:10px;
+    box-sizing:border-box;
+  }
+
+  .filters{
+    display:grid;
+    gap:10px;
+    background:linear-gradient(180deg, white, #fbfbfb);
+    padding:12px;
+    border-radius:10px;
+    border:1px solid rgba(0,0,0,0.04);
+    box-shadow:0 6px 18px rgba(0,0,0,0.03);
+  }
+  .filters h3{ margin:0 0 4px 0; font-size:14px; color:var(--negro); }
+
+  label{ font-size:13px; color:#333; display:block; margin-bottom:6px; font-weight:600; }
+
+  .row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+
+  select, .rangeVal, input[type="range"], input[type="number"], input[type="checkbox"]{
+    font-size:14px;
+  }
+
+  .small{ font-size:12px; color:#666; }
+
+  .control{
+    background:white;
+    padding:8px;
+    border-radius:8px;
+    border:1px solid rgba(0,0,0,0.04);
+  }
+
+  /* Desktop: left sidebar fixed 20% width, center 80% */
+  @media(min-width:900px){
+    .main{
+      align-items:flex-start;
+    }
+    .sidebar{
+      width:22%;
+      position:sticky;
+      top:72px;
+      height: calc(100vh - 100px);
+      overflow:auto;
+      flex-shrink:0;
+    }
+    .content{
+      width:78%;
+    }
+  }
+
+  /* Cards grid */
+  .content{
+    width:100%;
+  }
+  .meta{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px;
+    margin-bottom:10px;
+  }
+  .counter{
+    font-weight:700;
+    color:#333;
+  }
+  .grid{
+    display:grid;
+    gap:12px;
+    grid-template-columns: repeat(1,1fr);
+  }
+  @media(min-width:520px){
+    .grid{ grid-template-columns: repeat(2,1fr); }
+  }
+  @media(min-width:900px){
+    .grid{ grid-template-columns: repeat(3,1fr); }
+  }
+  @media(min-width:1200px){
+    .grid{ grid-template-columns: repeat(4,1fr); }
+  }
+
+  .card{
+    background:var(--card-bg);
+    border-radius:10px;
+    overflow:hidden;
+    display:flex;
+    gap:10px;
+    flex-direction:column;
+    transition: transform var(--transition), box-shadow var(--transition);
+    border:1px solid rgba(0,0,0,0.04);
+  }
+  .card:hover{ transform:translateY(-6px); box-shadow:0 20px 40px rgba(0,0,0,0.08); }
+
+  .imgwrap{
+    width:100%;
+    height:200px;
+    background:#eee;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .imgwrap img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    transition: transform 420ms cubic-bezier(.2,.8,.2,1);
+  }
+  .card:hover .imgwrap img{ transform:scale(1.06); }
+
+  .card-body{
+    padding:12px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .title{
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+    align-items:flex-start;
+  }
+  .title h4{ margin:0; font-size:15px; line-height:1.2; }
+  .badge{
+    font-size:12px; font-weight:800; padding:6px 8px; border-radius:999px; color:white; white-space:nowrap;
+  }
+  .specs{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    font-size:13px;
+    color:#444;
+  }
+  .desc{ font-size:13px; color:#555; min-height:36px; }
+
+  .card-footer{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px;
+    gap:8px;
+    border-top:1px dashed rgba(0,0,0,0.04);
+  }
+  .price{ font-weight:900; font-size:16px; color:var(--negro); }
+  .rating{ display:flex; gap:4px; align-items:center; color:#ffb400; }
+
+  .muted{ font-size:12px; color:#888; }
+
+  /* badges per store */
+  .badge.amazon{ background:var(--badge-amazon); }
+  .badge.temu{ background:var(--badge-temu); }
+  .badge.aliexpress{ background:var(--badge-aliexpress); }
+  .badge.decathlon{ background:var(--badge-decathlon); }
+  .badge.mildot{ background:var(--badge-mildot); }
+  .badge.sherman{ background:var(--badge-sherman); }
+
+  footer{
+    margin-top:18px;
+    padding:14px;
+    background:linear-gradient(180deg, #fff, #fbfbfb);
+    border-radius:10px;
+    border:1px solid rgba(0,0,0,0.04);
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    align-items:center;
+    font-size:13px;
+  }
+
+  /* micro-tooltips */
+  .hint{ position:relative; }
+  .hint[title]:hover::after{
+    content: attr(title);
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:calc(100% + 8px);
+    background:var(--negro);
+    color:white;
+    padding:8px 10px;
+    border-radius:6px;
+    font-size:12px;
+    white-space:nowrap;
+    z-index:40;
+  }
+
+  /* empty state */
+  .empty{
+    padding:40px;
+    text-align:center;
+    border-radius:10px;
+    background:linear-gradient(180deg,#fff,#fcfcfc);
+    border:1px dashed rgba(0,0,0,0.03);
+  }
+
+  /* smooth transitions on interactive elements */
+  input[type="range"]{ width:100%; }
+  .controls-row{ display:flex; gap:8px; align-items:center; }
+
+</style>
+</head>
+<body>
+
+  <div class="banner">
+    <span class="pill">MODO PRUEBA INTERNA</span>
+    <div>Sin compras reales — Solo visualización y análisis.</div>
+  </div>
+
+  <header>
+    <div class="logo" aria-hidden>
+      <div class="dot">M72</div>
+      <div>
+        <div style="font-size:14px; color:#666; font-weight:700">Mochila72</div>
+        <div style="font-size:11px; color:#999; margin-top:2px">Prototipo — e-commerce supervivencia</div>
+      </div>
+    </div>
+
+    <div class="search" role="search">
+      <input id="searchInput" list="namesList" type="search" placeholder="Buscar: linterna supervivencia, filtro agua..." aria-label="Buscar productos">
+      <datalist id="namesList"></datalist>
+      <button id="searchBtn" class="btn" title="Buscar">Buscar</button>
+      <button id="clearBtn" class="btn ghost" title="Reset filtros">Reset</button>
+    </div>
+  </header>
+
+  <div class="app">
+    <div class="main">
+      <aside class="sidebar">
+        <div class="filters" role="region" aria-label="Filtros">
+          <h3>Filtros — Siéntete en control</h3>
+
+          <div>
+            <label for="category">Categoría</label>
+            <select id="category" class="control" title="Escoge categoría para centrar resultados">
+              <option value="">Todas</option>
+              <option>Agua</option>
+              <option>Herramientas</option>
+              <option>Iluminación</option>
+              <option>Refugio</option>
+              <option>Salud</option>
+            </select>
+            <div class="small muted">Categoriza rápido</div>
+          </div>
+
+          <div>
+            <label>Precio (€) <span id="priceVal" class="small muted">0 - 200</span></label>
+            <div class="controls-row">
+              <input id="priceRange" type="range" min="0" max="200" value="200">
+            </div>
+            <div class="small">Ajusta para tu presupuesto</div>
+          </div>
+
+          <div>
+            <label>Peso (g) <span id="weightVal" class="small muted">0 - 2000</span></label>
+            <div class="controls-row">
+              <input id="weightRange" type="range" min="0" max="2000" value="2000" title="Peso bajo = ideal para mochila">
+            </div>
+            <div class="small hint" title="Peso bajo = ideal para escapada / mochila ligera">Peso bajo = ideal para mochila</div>
+          </div>
+
+          <div>
+            <label>Volumen / Capacidad (L) <span id="volVal" class="small muted">0 - 60</span></label>
+            <div class="controls-row">
+              <input id="volRange" type="range" min="0" max="60" value="60">
+            </div>
+            <div class="small">Usado para mochilas o filtros</div>
+          </div>
+
+          <div>
+            <label for="rating">Rating</label>
+            <select id="rating" class="control" title="Filtrar por valoraciones">
+              <option value="0">Todas</option>
+              <option value="4">> 4 estrellas</option>
+              <option value="4.5">> 4.5 estrellas</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Tienda</label>
+            <div class="row">
+              <label><input type="checkbox" name="store" value="Amazon" checked> Amazon</label>
+              <label><input type="checkbox" name="store" value="Temu" checked> Temu</label>
+              <label><input type="checkbox" name="store" value="AliExpress" checked> AliExpress</label>
+            </div>
+            <div class="row" style="margin-top:6px;">
+              <label><input type="checkbox" name="store" value="Decathlon" checked> Decathlon</label>
+              <label><input type="checkbox" name="store" value="Mildot" checked> Mildot</label>
+              <label><input type="checkbox" name="store" value="Sherman" checked> Sherman</label>
+            </div>
+            <div class="small">Selecciona origen(es)</div>
+          </div>
+
+          <div style="display:flex; gap:8px; margin-top:6px;">
+            <button id="applyFilters" class="btn">Aplicar filtros</button>
+            <button id="resetFilters" class="btn ghost">Reset</button>
+          </div>
+
+          <div style="margin-top:8px; font-size:13px; color:#666;">
+            Tip: prueba <strong>"filtro agua"</strong> y luego peso &lt;100g.
+          </div>
+        </div>
+      </aside>
+
+      <main class="content">
+        <div class="meta">
+          <div class="counter" id="counter">Cargando productos...</div>
+          <div class="muted" id="storeInfo">Analizando tiendas...</div>
+        </div>
+
+        <div class="grid" id="grid"></div>
+
+        <div id="emptyState" style="display:none;" class="empty">
+          <h3>No hay matches</h3>
+          <p>Prueba ajustar filtros o borrar la búsqueda. <br> Consejo: reduce el límite de peso o amplía el precio.</p>
+        </div>
+
+      </main>
+    </div>
+
+    <footer>
+      <div>Prueba interna - Analizando datos de <strong id="footerShops">Amazon / Mildot</strong></div>
+      <div class="small muted">Prototipo local — Sin cookies de terceros</div>
+    </footer>
+  </div>
+
+<script>
+/*
+  Mochila72 - Prototipo (todo en un archivo)
+  - Array de ~30 productos al inicio
+  - Guardado de filtros en localStorage
+  - Búsqueda, filtros y grid dinámico
+*/
+
+const PRODUCTS = [
+  // Amazon
+  {
+    id: "A1",
+    name: "Kit Supervivencia 30 en 1 - Amazon Basics",
+    desc: "Kit compacto con cuchillo, linterna, silbato, manta térmica. Ideal para coche y mochila.",
+    price: 59,
+    weight_g: 1000,
+    volume_l: 0.8,
+    material: "Nylon 600D / Acero inoxidable",
+    rating: 4.5,
+    link: "https://www.amazon.es/dp/example1",
+    image: "https://source.unsplash.com/collection/895539/600x600?survival,kit",
+    origin: "Amazon",
+    category: "Herramientas"
+  },
+  {
+    id: "A2",
+    name: "Linterna Táctica LED 2000LM",
+    desc: "Linterna recargable USB, zoom, resistente al agua.",
+    price: 29,
+    weight_g: 220,
+    volume_l: 0.1,
+    material: "Aluminio",
+    rating: 4.3,
+    link: "https://www.amazon.es/dp/example2",
+    image: "https://source.unsplash.com/600x600/?flashlight,tactical",
+    origin: "Amazon",
+    category: "Iluminación"
+  },
+  {
+    id: "A3",
+    name: "Filtro Agua Portátil - Botella con filtro 2000L",
+    desc: "Filtrado de sedimentos y bacterias, ideal para senderismo.",
+    price: 49,
+    weight_g: 180,
+    volume_l: 0.75,
+    material: "Plástico BPA-free / Cerámica",
+    rating: 4.4,
+    link: "https://www.amazon.es/dp/example3",
+    image: "https://source.unsplash.com/600x600/?water-filter,straw",
+    origin: "Amazon",
+    category: "Agua"
+  },
+  {
+    id: "A4",
+    name: "Cuchillo Bushcraft - Acero al carbono 12cm",
+    desc: "Hoja robusta, mango de madera, funda incluida.",
+    price: 42,
+    weight_g: 210,
+    volume_l: 0.05,
+    material: "Acero carbono",
+    rating: 4.6,
+    link: "https://www.amazon.es/dp/example4",
+    image: "https://source.unsplash.com/600x600/?bushcraft,knife",
+    origin: "Amazon",
+    category: "Herramientas"
+  },
+
+  // Temu
+  {
+    id: "T1",
+    name: "Mochila Táctica 45L - Impermeable",
+    desc: "Mochila 45L con múltiples compartimentos, compatible MOLLE.",
+    price: 25,
+    weight_g: 800,
+    volume_l: 45,
+    material: "Nylon impermeable",
+    rating: 4.2,
+    link: "https://www.temu.com/item/example1",
+    image: "https://source.unsplash.com/600x600/?tactical-backpack",
+    origin: "Temu",
+    category: "Refugio"
+  },
+  {
+    id: "T2",
+    name: "Kit Rápido Primeros Auxilios - 80 piezas",
+    desc: "Kit compacto con vendajes, tijeras, pinzas.",
+    price: 18,
+    weight_g: 220,
+    volume_l: 1.2,
+    material: "Nylon / Plástico",
+    rating: 4.1,
+    link: "https://www.temu.com/item/example2",
+    image: "https://source.unsplash.com/600x600/?first-aid-kit",
+    origin: "Temu",
+    category: "Salud"
+  },
+  {
+    id: "T3",
+    name: "Batería Externa Solar 10000mAh",
+    desc: "Powerbank con panel solar plegable para emergencias.",
+    price: 39,
+    weight_g: 310,
+    volume_l: 0.4,
+    material: "Polímero",
+    rating: 4.0,
+    link: "https://www.temu.com/item/example3",
+    image: "https://source.unsplash.com/600x600/?solar-powerbank",
+    origin: "Temu",
+    category: "Iluminación"
+  },
+
+  // AliExpress
+  {
+    id: "AL1",
+    name: "Linterna Táctica LED 10000LM - USB",
+    desc: "Pequeña pero potente, zoom y varios modos.",
+    price: 15,
+    weight_g: 150,
+    volume_l: 0.12,
+    material: "Aluminio 6061",
+    rating: 4.3,
+    link: "https://es.aliexpress.com/item/example1",
+    image: "https://source.unsplash.com/600x600/?led-flashlight",
+    origin: "AliExpress",
+    category: "Iluminación"
+  },
+  {
+    id: "AL2",
+    name: "Cuerda Paracord 550 - 30m",
+    desc: "Cuerda multiusos para supervivencia y reparaciones.",
+    price: 9,
+    weight_g: 120,
+    volume_l: 0.02,
+    material: "Nylon 550",
+    rating: 4.1,
+    link: "https://es.aliexpress.com/item/example2",
+    image: "https://source.unsplash.com/600x600/?paracord,rope",
+    origin: "AliExpress",
+    category: "Herramientas"
+  },
+  {
+    id: "AL3",
+    name: "Hornillo Plegable de Camping",
+    desc: "Ligero, ideal para cocina en ruta.",
+    price: 22,
+    weight_g: 240,
+    volume_l: 0.3,
+    material: "Acero inoxidable",
+    rating: 4.0,
+    link: "https://es.aliexpress.com/item/example3",
+    image: "https://source.unsplash.com/600x600/?camp-stove",
+    origin: "AliExpress",
+    category: "Refugio"
+  },
+
+  // Decathlon
+  {
+    id: "D1",
+    name: "Cuchillo Bushcraft MoraKniv",
+    desc: "Cuchillo de confianza; hoja afilada y ergonómica.",
+    price: 35,
+    weight_g: 200,
+    volume_l: 0.04,
+    material: "Acero carbono",
+    rating: 4.7,
+    link: "https://www.decathlon.es/p/example1",
+    image: "https://source.unsplash.com/600x600/?mora-knife",
+    origin: "Decathlon",
+    category: "Herramientas"
+  },
+  {
+    id: "D2",
+    name: "Saco Vivac Ligero 3 estaciones",
+    desc: "Compacto y cálido para escapadas cortas.",
+    price: 79,
+    weight_g: 980,
+    volume_l: 12,
+    material: "Nylon ripstop",
+    rating: 4.4,
+    link: "https://www.decathlon.es/p/example2",
+    image: "https://source.unsplash.com/600x600/?bivy-sack",
+    origin: "Decathlon",
+    category: "Refugio"
+  },
+
+  // Mildot (especializado)
+  {
+    id: "M1",
+    name: "Filtro LifeStraw Personal",
+    desc: "Filtra hasta 4000L, elimina 99.9999% bacterias y protozoos.",
+    price: 25,
+    weight_g: 56,
+    volume_l: 0.15,
+    material: "Plástico BPA-free / Fibra",
+    rating: 4.8,
+    link: "https://www.mildot.es/product/lifestraw",
+    image: "https://source.unsplash.com/600x600/?lifestraw,water",
+    origin: "Mildot",
+    category: "Agua"
+  },
+  {
+    id: "M2",
+    name: "MicroFiltro Sawyer MINI",
+    desc: "Ligero y efectivo, compatible con bolsas o botellas.",
+    price: 35,
+    weight_g: 65,
+    volume_l: 0.12,
+    material: "Polímero",
+    rating: 4.7,
+    link: "https://www.mildot.es/product/sawyer-mini",
+    image: "https://source.unsplash.com/600x600/?water-filter,microfilter",
+    origin: "Mildot",
+    category: "Agua"
+  },
+  {
+    id: "M3",
+    name: "Purificador UV portátil - SteriPEN",
+    desc: "Luz UV para purificar 1L en 90s.",
+    price: 84,
+    weight_g: 95,
+    volume_l: 0.2,
+    material: "Plástico / Circuitería",
+    rating: 4.5,
+    link: "https://www.mildot.es/product/steripen",
+    image: "https://source.unsplash.com/600x600/?uv-water,steripen",
+    origin: "Mildot",
+    category: "Agua"
+  },
+
+  // Sherman (herramientas premium)
+  {
+    id: "S1",
+    name: "Multiherramienta Leatherman Wave - Sherman",
+    desc: "18 herramientas, acero inoxidable, funda incluida.",
+    price: 120,
+    weight_g: 240,
+    volume_l: 0.25,
+    material: "Acero inoxidable / Titanio",
+    rating: 4.9,
+    link: "https://www.sherman-survival.com/product/leatherman-wave",
+    image: "https://source.unsplash.com/600x600/?multitool,leatherman",
+    origin: "Sherman",
+    category: "Herramientas"
+  },
+  {
+    id: "S2",
+    name: "Luz ChemLight Táctica (pack 4)",
+    desc: "Barras luminosas para señalización nocturna.",
+    price: 12,
+    weight_g: 40,
+    volume_l: 0.02,
+    material: "Químico encapsulado",
+    rating: 4.4,
+    link: "https://www.sherman-survival.com/product/chemlight",
+    image: "https://source.unsplash.com/600x600/?chemlight,glowstick",
+    origin: "Sherman",
+    category: "Iluminación"
+  },
+
+  // More mixed entries (total ~30)
+  { id:"A5", name:"Manta Térmica de Emergencia", desc:"Reflectiva; compacta y ligera.", price:4.5, weight_g:45, volume_l:0.01, material:"Mylar", rating:4.2, link:"https://www.amazon.es/dp/example5", image:"https://source.unsplash.com/600x600/?emergency-blanket", origin:"Amazon", category:"Refugio" },
+  { id:"T4", name:"Saco Estanca 20L", desc:"Protege equipo del agua.", price:9, weight_g:80, volume_l:20, material:"TPU", rating:4.0, link:"https://www.temu.com/item/example4", image:"https://source.unsplash.com/600x600/?dry-bag", origin:"Temu", category:"Refugio" },
+  { id:"AL4", name:"Brújula Militar Compacta", desc:"Brújula con clinómetro, funda.", price:7, weight_g:50, volume_l:0.02, material:"Plástico/Metal", rating:4.1, link:"https://es.aliexpress.com/item/example4", image:"https://source.unsplash.com/600x600/?compass", origin:"AliExpress", category:"Herramientas" },
+  { id:"D3", name:"Fardo de Fuego - Encendedor Multifunción", desc:"Piedra ferrocerio + pedernal.", price:14, weight_g:110, volume_l:0.05, material:"Ferrocerio", rating:4.5, link:"https://www.decathlon.es/p/example3", image:"https://source.unsplash.com/600x600/?ferro-rod,firestarter", origin:"Decathlon", category:"Herramientas" },
+  { id:"M4", name:"Filtro Camión (sistema de purificación)", desc:"Filtro compacto con gran capacidad.", price:199, weight_g:900, volume_l:1.5, material:"Carbón activo / Fibra", rating:4.6, link:"https://www.mildot.es/product/bigfilter", image:"https://source.unsplash.com/600x600/?water-system,filter", origin:"Mildot", category:"Agua" },
+  { id:"S3", name:"Radio de Emergencia AM/FM/NOAA", desc:"Manivela solar, USB carga.", price:45, weight_g:330, volume_l:0.7, material:"Plástico", rating:4.3, link:"https://www.sherman-survival.com/product/emergency-radio", image:"https://source.unsplash.com/600x600/?emergency-radio", origin:"Sherman", category:"Salud" },
+  { id:"A6", name:"Cargador Solar Plegable 22W", desc:"Panel portátil para cargar baterías.", price:69, weight_g:420, volume_l:0.6, material:"Silicio", rating:4.2, link:"https://www.amazon.es/dp/example6", image:"https://source.unsplash.com/600x600/?solar-panel,portable", origin:"Amazon", category:"Iluminación" },
+  { id:"T5", name:"Kit de Cocina Ultracompacto", desc:"Utensilios plegables y livianos.", price:21, weight_g:260, volume_l:0.5, material:"Titanio/Aluminio", rating:4.1, link:"https://www.temu.com/item/example5", image:"https://source.unsplash.com/600x600/?camping-cookware", origin:"Temu", category:"Refugio" },
+  { id:"AL5", name:"Silbato de supervivencia 130dB", desc:"Micrón compacto, color naranja.", price:3.5, weight_g:12, volume_l:0.005, material:"Plástico", rating:4.0, link:"https://es.aliexpress.com/item/example5", image:"https://source.unsplash.com/600x600/?whistle", origin:"AliExpress", category:"Herramientas" },
+  { id:"D4", name:"Filtro de Agua portátil Decathlon", desc:"Filtro de cerámica para senderismo.", price:29, weight_g:140, volume_l:0.2, material:"Cerámica", rating:4.4, link:"https://www.decathlon.es/p/example4", image:"https://source.unsplash.com/600x600/?water-filter,ceramic", origin:"Decathlon", category:"Agua" },
+  { id:"M5", name:"Kit Purificación Química (yodo/cloro)", desc:"Tabletas para purificar agua en rutas.", price:6, weight_g:18, volume_l:0.01, material:"Químicos", rating:4.0, link:"https://www.mildot.es/product/tablets", image:"https://source.unsplash.com/600x600/?water-tablets", origin:"Mildot", category:"Agua" },
+  { id:"S4", name:"Bolsa de Dormir Compacta - Sherman", desc:"3 estaciones, compresible.", price:89, weight_g:920, volume_l:9, material:"Nylon ripstop", rating:4.5, link:"https://www.sherman-survival.com/product/sleep-bag", image:"https://source.unsplash.com/600x600/?sleeping-bag,compact", origin:"Sherman", category:"Refugio" },
+  { id:"A7", name:"Panel Reflectante de Señalización", desc:"Señal para rescate, plegable.", price:18, weight_g:250, volume_l:0.4, material:"Aluminio/Plastic", rating:4.1, link:"https://www.amazon.es/dp/example7", image:"https://source.unsplash.com/600x600/?signal-panel,rescue", origin:"Amazon", category:"Herramientas" },
+  { id:"T6", name:"Mosquitera ultraligera", desc:"Protección contra insectos en refugio.", price:12, weight_g:90, volume_l:0.2, material:"Poliéster", rating:4.1, link:"https://www.temu.com/item/example6", image:"https://source.unsplash.com/600x600/?mosquito-net", origin:"Temu", category:"Refugio" },
+  { id:"AL6", name:"Mapa impermeable plegable Europe", desc:"Mapa detallado, resistente al agua.", price:6.5, weight_g:75, volume_l:0.05, material:"Paper+PVC", rating:4.0, link:"https://es.aliexpress.com/item/example6", image:"https://source.unsplash.com/600x600/?map", origin:"AliExpress", category:"Herramientas" },
+  { id:"D5", name:"Botella Isotérmica 1L Quechua", desc:"Mantiene temperatura; duradera.", price:22, weight_g:320, volume_l:1, material:"Acero inoxidable", rating:4.6, link:"https://www.decathlon.es/p/example5", image:"https://source.unsplash.com/600x600/?thermos,bottle", origin:"Decathlon", category:"Agua" },
+  { id:"M6", name:"Filtro de Repuesto Sawyer", desc:"Cartucho para Sawyer, alta durabilidad.", price:19, weight_g:45, volume_l:0.02, material:"Fibra", rating:4.7, link:"https://www.mildot.es/product/sawyer-cartridge", image:"https://source.unsplash.com/600x600/?filter-cartridge", origin:"Mildot", category:"Agua" },
+  { id:"S5", name:"Cuchillo Supervivencia Sherman - Serie Pro", desc:"Hoja 14cm, goma antideslizante.", price:68, weight_g:310, volume_l:0.06, material:"Acero 1095", rating:4.6, link:"https://www.sherman-survival.com/product/pro-knife", image:"https://source.unsplash.com/600x600/?survival-knife", origin:"Sherman", category:"Herramientas" },
+  { id:"A8", name:"Cargador Dinamo para Radio/USB", desc:"Manivela para energía en emergencia.", price:34, weight_g:420, volume_l:0.5, material:"Plástico/Metal", rating:4.2, link:"https://www.amazon.es/dp/example8", image:"https://source.unsplash.com/600x600/?hand-crank,charger", origin:"Amazon", category:"Iluminación" },
+  { id:"T7", name:"Sierra de mano plegable", desc:"Compacta y resistente.", price:11, weight_g:140, volume_l:0.06, material:"Acero", rating:4.0, link:"https://www.temu.com/item/example7", image:"https://source.unsplash.com/600x600/?folding-saw", origin:"Temu", category:"Herramientas" },
+  { id:"AL7", name:"Mosquetón con seguro (2uds)", desc:"Carga hasta 25kN, ligero.", price:10, weight_g:80, volume_l:0.02, material:"Aluminio", rating:4.3, link:"https://es.aliexpress.com/item/example7", image:"https://source.unsplash.com/600x600/?carabiner", origin:"AliExpress", category:"Herramientas" }
+];
+
+// --- localStorage keys
+const STORAGE_FILTERS = 'mochila72_filters_v1';
+const STORAGE_LAST = 'mochila72_lastresults_v1';
+
+let state = {
+  products: PRODUCTS.slice(),
+  filtered: [],
+  filters: {
+    q: '',
+    category: '',
+    priceMax: 200,
+    weightMax: 2000,
+    volMax: 60,
+    ratingMin: 0,
+    stores: ["Amazon","Temu","AliExpress","Decathlon","Mildot","Sherman"]
+  }
+};
+
+/* --- Helpers --- */
+const $ = selector => document.querySelector(selector);
+const $$ = selector => Array.from(document.querySelectorAll(selector));
+
+function formatPrice(v){ return v % 1 === 0 ? v + '€' : v.toFixed(2) + '€'; }
+function stars(r){
+  const full = Math.floor(r);
+  const half = (r - full) >= 0.5;
+  let s = '';
+  for(let i=0;i<full;i++) s += '★';
+  if(half) s += '½';
+  return s;
+}
+
+/* --- Populate datalist for search suggestions --- */
+function populateDatalist(){
+  const dl = $('#namesList');
+  dl.innerHTML = '';
+  const names = [...new Set(PRODUCTS.map(p=>p.name))].slice(0,200);
+  names.forEach(n=>{
+    const opt = document.createElement('option');
+    opt.value = n;
+    dl.appendChild(opt);
+  });
+}
+
+/* --- Save / Load filters --- */
+function saveFilters(){
+  try{
+    localStorage.setItem(STORAGE_FILTERS, JSON.stringify(state.filters));
+  }catch(e){ console.warn('No se pudo guardar filtros', e); }
+}
+function loadFilters(){
+  try{
+    const raw = localStorage.getItem(STORAGE_FILTERS);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      state.filters = Object.assign(state.filters, parsed);
+    }
+  }catch(e){ console.warn('No se pudo cargar filtros', e); }
+}
+
+/* --- UI sync --- */
+function syncUIFromFilters(){
+  $('#searchInput').value = state.filters.q || '';
+  $('#category').value = state.filters.category || '';
+  $('#priceRange').value = state.filters.priceMax;
+  $('#priceVal').textContent = `0 - ${state.filters.priceMax}`;
+  $('#weightRange').value = state.filters.weightMax;
+  $('#weightVal').textContent = `0 - ${state.filters.weightMax}`;
+  $('#volRange').value = state.filters.volMax;
+  $('#volVal').textContent = `0 - ${state.filters.volMax}`;
+  $('#rating').value = state.filters.ratingMin || 0;
+
+  // stores
+  $$('input[name="store"]').forEach(ch=>{
+    ch.checked = state.filters.stores.includes(ch.value);
+  });
+}
+
+/* --- Read UI into filters --- */
+function readFiltersFromUI(){
+  state.filters.q = $('#searchInput').value.trim();
+  state.filters.category = $('#category').value;
+  state.filters.priceMax = Number($('#priceRange').value);
+  state.filters.weightMax = Number($('#weightRange').value);
+  state.filters.volMax = Number($('#volRange').value);
+  state.filters.ratingMin = Number($('#rating').value);
+  state.filters.stores = $$('input[name="store"]:checked').map(c=>c.value);
+  saveFilters();
+}
+
+/* --- Filtering logic --- */
+function applyFilters(){
+  readFiltersFromUI();
+  const f = state.filters;
+  const q = f.q.toLowerCase();
+  const all = PRODUCTS.slice();
+
+  // filter by store first for performance
+  let res = all.filter(p => f.stores.includes(p.origin));
+
+  // search query: match name, desc, material, category
+  if(q){
+    res = res.filter(p => {
+      return p.name.toLowerCase().includes(q)
+          || p.desc.toLowerCase().includes(q)
+          || (p.material && p.material.toLowerCase().includes(q))
+          || (p.category && p.category.toLowerCase().includes(q));
+    });
+  }
+
+  // category
+  if(f.category){
+    res = res.filter(p => p.category === f.category);
+  }
+
+  // price
+  res = res.filter(p => (typeof p.price === 'number') ? p.price <= f.priceMax : true);
+
+  // weight
+  res = res.filter(p => (typeof p.weight_g === 'number') ? p.weight_g <= f.weightMax : true);
+
+  // volume
+  res = res.filter(p => (typeof p.volume_l === 'number') ? p.volume_l <= f.volMax : true);
+
+  // rating
+  if(f.ratingMin && f.ratingMin > 0){
+    res = res.filter(p => (typeof p.rating === 'number') ? p.rating >= f.ratingMin : false);
+  }
+
+  state.filtered = res;
+  localStorage.setItem(STORAGE_LAST, JSON.stringify({count: res.length, timestamp: Date.now()}));
+  renderGrid();
+  updateMeta();
+  saveFilters();
+
+  // internal analysis: log counts per store and which store has more detailed specs (we treat entries with weight_g and volume_l as "detailed")
+  const counts = {};
+  const detailCount = {};
+  PRODUCTS.forEach(p=>{
+    counts[p.origin] = (counts[p.origin] || 0) + 1;
+    const detailed = (p.weight_g && p.volume_l) ? 1 : 0;
+    detailCount[p.origin] = (detailCount[p.origin] || 0) + detailed;
+  });
+  // compute store with most "detailed" specs
+  let top = null, topCount= -1;
+  for(const s in detailCount){
+    if(detailCount[s] > topCount){ top = s; topCount = detailCount[s]; }
+  }
+  console.log("Tienda con más datos (conteo detalles por origen):", detailCount, "-> Top:", top);
+}
+
+/* --- Render grid --- */
+function updateMeta(){
+  const total = PRODUCTS.length;
+  const shown = state.filtered.length;
+  $('#counter').textContent = `${shown} resultados de ${total} productos`;
+  // store count info: which stores appear in results
+  const storesPresent = Array.from(new Set(state.filtered.map(p=>p.origin)));
+  $('#storeInfo').textContent = `${storesPresent.length} tiendas representadas • ${storesPresent.join(' / ') || 'Ninguna'}`;
+  $('#footerShops').textContent = storesPresent.slice(0,2).join(' / ') || 'Amazon / Mildot';
+}
+
+function badgeClass(origin){
+  return {
+    "Amazon":"amazon",
+    "Temu":"temu",
+    "AliExpress":"aliexpress",
+    "Decathlon":"decathlon",
+    "Mildot":"mildot",
+    "Sherman":"sherman"
+  }[origin] || 'amazon';
+}
+
+function renderCard(p){
+  const img = `<div class="imgwrap"><img loading="lazy" src="${p.image}" alt="${p.name}"></div>`;
+  const badge = `<div class="badge ${badgeClass(p.origin)}">${p.origin}</div>`;
+  const specs = `
+    <div class="specs">
+      <div title="Precio" class="muted">Precio: <strong>${formatPrice(p.price)}</strong></div>
+      <div title="Peso" class="muted">Peso: <strong>${p.weight_g}g</strong></div>
+      <div title="Volumen/Capacidad" class="muted">Vol: <strong>${p.volume_l}${p.volume_l ? 'L' : ''}</strong></div>
+      <div title="Material" class="muted">Mat: <strong>${p.material}</strong></div>
+    </div>
+  `;
+  const ratingStars = `<div class="rating" title="${p.rating} estrellas">${'★'.repeat(Math.round(p.rating))} <span class="muted" style="margin-left:6px;">${p.rating}</span></div>`;
+  const desc = `<div class="desc">${p.desc}</div>`;
+  const foot = `<div class="card-footer">
+      <div>
+        <div class="price">${formatPrice(p.price)}</div>
+        <div class="muted small">${p.rating} ★ — ${p.origin}</div>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <a class="btn ghost" target="_blank" rel="noopener" href="${p.link}" title="Abrir en tienda">Ver en tienda</a>
+      </div>
+    </div>`;
+  return `<article class="card" data-id="${p.id}" aria-label="${p.name}">
+    ${img}
+    <div class="card-body">
+      <div class="title">
+        <h4>${p.name}</h4>
+        ${badge}
+      </div>
+      ${specs}
+      ${desc}
+    </div>
+    ${foot}
+  </article>`;
+}
+
+function renderGrid(){
+  const grid = $('#grid');
+  grid.innerHTML = '';
+  if(state.filtered.length === 0){
+    $('#emptyState').style.display = 'block';
+    grid.style.display = 'none';
+    return;
+  } else {
+    $('#emptyState').style.display = 'none';
+    grid.style.display = 'grid';
+  }
+
+  const fragment = document.createDocumentFragment();
+  state.filtered.forEach(p=>{
+    const div = document.createElement('div');
+    div.innerHTML = renderCard(p);
+    fragment.appendChild(div.firstElementChild);
+  });
+  grid.appendChild(fragment);
+  // nice micro animation
+  grid.style.opacity = 0;
+  requestAnimationFrame(()=> grid.style.transition = 'opacity 360ms ease-out', grid.style.opacity = 1);
+}
+
+/* --- Event wiring --- */
+function wireEvents(){
+  $('#searchBtn').addEventListener('click', ()=>{
+    state.filters.q = $('#searchInput').value.trim();
+    applyFilters();
+  });
+
+  $('#searchInput').addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter'){ applyFilters(); }
+    // simple predictive dropdown not complex autocomplete
+  });
+
+  $('#clearBtn').addEventListener('click', ()=>{
+    // clear search and reset filters
+    resetAll();
+  });
+
+  $('#applyFilters').addEventListener('click', ()=>{
+    applyFilters();
+  });
+
+  $('#resetFilters').addEventListener('click', ()=>{
+    resetAll();
+  });
+
+  // live updates for sliders
+  $('#priceRange').addEventListener('input', (e)=>{ $('#priceVal').textContent = `0 - ${e.target.value}`; });
+  $('#weightRange').addEventListener('input', (e)=>{ $('#weightVal').textContent = `0 - ${e.target.value}`; });
+  $('#volRange').addEventListener('input', (e)=>{ $('#volVal').textContent = `0 - ${e.target.value}`; });
+
+  // apply on slider change (soft) after short debounce
+  let debounceTimer = null;
+  ['priceRange','weightRange','volRange','category','rating'].forEach(id=>{
+    $(`#${id}`).addEventListener('change', ()=>{
+      if(debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(()=> applyFilters(), 300);
+    });
+  });
+
+  // stores checkboxes: apply on change
+  $$('input[name="store"]').forEach(ch=>{
+    ch.addEventListener('change', ()=> applyFilters());
+  });
+}
+
+/* --- Reset --- */
+function resetAll(){
+  state.filters = {
+    q: '',
+    category: '',
+    priceMax: 200,
+    weightMax: 2000,
+    volMax: 60,
+    ratingMin: 0,
+    stores: ["Amazon","Temu","AliExpress","Decathlon","Mildot","Sherman"]
+  };
+  saveFilters();
+  syncUIFromFilters();
+  applyFilters();
+}
+
+/* --- Init --- */
+function init(){
+  populateDatalist();
+  loadFilters();
+  syncUIFromFilters();
+  wireEvents();
+  applyFilters();
+
+  // UX: add tiny animation to help user see change
+  document.body.style.transition = 'background 600ms ease';
+  setTimeout(()=> document.body.style.background = 'linear-gradient(180deg,#f0f6f0 0%, #f9fbf9 100%)', 80);
+}
+
+init();
+
+/* --- Instructions visible en consola --- */
+console.log("Mochila72 prototipo cargado. Instrucciones: guardar como index.html y abrir localmente.");
+console.log("Prueba 'filtro agua' y filtra por peso <100g.");
+</script>
+
+</body>
+</html>

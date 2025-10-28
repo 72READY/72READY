@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mochila72 · Búsqueda de productos</title>
+<style>
+  :root{
+    --verde:#4CAF50; --negro:#1A1A1A; --naranja:#FF6B00; --gris:#f4f4f4; --borde:rgba(0,0,0,.08);
+    --badge-amazon:#2e7d32; --badge-temu:#1976d2; --badge-aliexpress:#ff5722; --badge-decathlon:#0b8043; --badge-mildot:#455a64; --badge-sherman:#6a1b9a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;background:linear-gradient(180deg,#0f120f,#151515);color:#eee}
+  a{color:inherit}
+  .banner{background:linear-gradient(90deg,rgba(76,175,80,.12),rgba(255,107,0,.12));color:#eee;padding:8px 12px;text-align:center;font-weight:700;border-bottom:1px solid rgba(255,255,255,.06)}
+  header{position:sticky;top:0;z-index:50;background:#121212b8;backdrop-filter:blur(6px);border-bottom:1px solid rgba(255,255,255,.06)}
+  .top{display:flex;gap:10px;align-items:center;padding:10px 12px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:900}
+  .logo .dot{width:38px;height:38px;border-radius:10px;background:var(--verde);display:grid;place-items:center;color:#fff}
+  .search{flex:1;display:flex;gap:8px}
+  .search input{flex:1;border:1px solid var(--borde);padding:10px 12px;border-radius:10px;background:#1b1b1b;color:#eee}
+  .btn{background:var(--naranja);color:#fff;border:none;padding:10px 14px;border-radius:10px;font-weight:800;cursor:pointer}
+  .ghost{background:transparent;border:1px solid rgba(255,255,255,.15);color:#ddd}
+  .layout{display:grid;grid-template-columns:1fr;gap:12px;padding:12px}
+  @media(min-width:1100px){ .layout{grid-template-columns:260px 1fr 230px;} }
+  aside.left, aside.right, main{background:#121212;border:1px solid rgba(255,255,255,.06);border-radius:12px}
+  aside.left{padding:12px;position:sticky;top:72px;height:max-content}
+  aside.right{padding:8px;position:sticky;top:72px;max-height:calc(100vh - 90px);overflow:auto}
+  h3,h4{margin:8px 0;color:#fff}
+  label{font-size:13px;color:#bbb}
+  .row{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
+  input[type="range"]{width:100%}
+  .muted{color:#9aa}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;border:1px solid rgba(255,255,255,.12);font-size:12px}
+  .menuTypes{display:flex;flex-direction:column;gap:6px}
+  .menuTypes .type{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.08);cursor:pointer}
+  .menuTypes .type:hover{background:#1a1a1a}
+  .type.active{background:rgba(76,175,80,.14);border-color:#295f2b}
+  .type .tag{font-size:11px;padding:2px 6px;border-radius:6px;background:#222}
+  .type.reco .tag{background:#244b27;color:#b7ffcc}
+  main{padding:12px}
+  .bar{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .bar .subpacks{display:flex;gap:8px;flex-wrap:wrap}
+  .pill{padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);cursor:pointer;font-size:13px}
+  .pill.active{background:rgba(255,107,0,.18);border-color:#ff6b00}
+  .grid{display:grid;grid-template-columns:repeat(1,1fr);gap:12px}
+  @media(min-width:700px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(min-width:1200px){.grid{grid-template-columns:repeat(3,1fr)}}
+  .card{background:#141414;border:1px solid rgba(255,255,255,.06);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;transition:transform .2s}
+  .card:hover{transform:translateY(-4px)}
+  .img{height:200px;background:#0c0c0c;overflow:hidden}
+  .img img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+  .card:hover .img img{transform:scale(1.06)}
+  .body{padding:10px;display:flex;flex-direction:column;gap:8px}
+  .title{display:flex;justify-content:space-between;gap:8px}
+  .badge{font-size:11px;font-weight:800;color:#fff;padding:6px 8px;border-radius:999px}
+  .amazon{background:var(--badge-amazon)} .temu{background:var(--badge-temu)} .aliexpress{background:var(--badge-aliexpress)} .decathlon{background:var(--badge-decathlon)} .mildot{background:var(--badge-mildot)} .sherman{background:var(--badge-sherman)}
+  .specs{display:flex;flex-wrap:wrap;gap:10px;color:#aab}
+  .price{font-weight:900}
+  .foot{display:flex;justify-content:space-between;align-items:center;padding:10px;border-top:1px dashed rgba(255,255,255,.06)}
+  .empty{padding:30px;text-align:center;border:1px dashed rgba(255,255,255,.1);border-radius:12px}
+  .hint{font-size:12px;color:#9aa}
+</style>
+</head>
+<body>
+  <div class="banner">⚠️ MODO PRUEBA INTERNA — Sin compras reales</div>
+  <header>
+    <div class="top">
+      <div class="logo"><div class="dot">M72</div> Mochila72</div>
+      <div class="search" role="search">
+        <input id="q" type="search" placeholder="Buscar: cuchillo, linterna, filtro agua..." list="dl">
+        <datalist id="dl"></datalist>
+        <button class="btn" id="btnBuscar">Buscar</button>
+        <button class="btn ghost" id="btnReset">Reset</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- LEFT: FILTROS -->
+    <aside class="left" aria-label="Filtros">
+      <h3>Filtros</h3>
+      <div>
+        <label>Precio (máx) <span id="priceVal" class="muted">200€</span></label>
+        <input type="range" id="price" min="0" max="200" value="200">
+      </div>
+      <div>
+        <label>Peso (máx) <span id="weightVal" class="muted">2000g</span></label>
+        <input type="range" id="weight" min="0" max="2000" value="200">
+      </div>
+      <div>
+        <label>Capacidad (máx L) <span id="volVal" class="muted">60L</span></label>
+        <input type="range" id="vol" min="0" max="60" value="60">
+      </div>
+      <div>
+        <label>Rating</label>
+        <div class="row">
+          <label class="chip"><input type="radio" name="rt" value="0" checked> Todas</label>
+          <label class="chip"><input type="radio" name="rt" value="4"> ≥4★</label>
+          <label class="chip"><input type="radio" name="rt" value="4.5"> ≥4.5★</label>
+        </div>
+      </div>
+      <div>
+        <label>Tienda</label>
+        <div class="row" id="storesBox"></div>
+      </div>
+      <button class="btn" id="apply">Aplicar</button>
+    </aside>
+
+    <!-- CENTER: RESULTADOS -->
+    <main>
+      <div class="bar">
+        <div id="packInfo" class="muted">Mochila: <strong id="packName">—</strong></div>
+        <div class="subpacks" id="subPacks">
+          <!-- botones de mochilas -->
+        </div>
+      </div>
+
+      <div class="hint">Menú derecho: tipos de objetos. Los recomendados para tu mochila aparecen primero.</div>
+      <div id="counter" class="muted" style="margin:8px 0">0 resultados</div>
+
+      <div id="grid" class="grid"></div>
+      <div id="empty" class="empty" style="display:none">No hay resultados. Ajusta filtros o cambia el tipo.</div>
+    </main>
+
+    <!-- RIGHT: MENÚ RODANTE DE TIPOS -->
+    <aside class="right" aria-label="Tipos de producto">
+      <h3>Tipos</h3>
+      <div id="typeMenu" class="menuTypes"></div>
+    </aside>
+  </div>
+
+<script>
+/** ====== DATOS SIMULADOS (fotos reales/realistas) ====== **/
+const PRODUCTS = [
+  // Herramientas / cuchillos
+  {id:'S5',name:'Cuchillo Supervivencia Sherman Pro',desc:'Acero 1095, hoja 14cm, goma antideslizante.',price:68,weight_g:310,volume_l:0.06,material:'Acero 1095',rating:4.6,origin:'Sherman',category:'Herramientas',type:'Cuchillos',image:'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1200&q=70',link:'https://www.sherman-survival.com/product/pro-knife'},
+  {id:'D1',name:'Cuchillo MoraKniv Bushcraft',desc:'Acero carbono, funda incluida.',price:35,weight_g:200,volume_l:0.04,material:'Acero carbono',rating:4.7,origin:'Decathlon',category:'Herramientas',type:'Cuchillos',image:'https://images.unsplash.com/photo-1613776262984-7bd3a8a3c60f?auto=format&fit=crop&w=1200&q=70',link:'https://www.decathlon.es/p/example1'},
+  {id:'A4',name:'Cuchillo Bushcraft 12cm',desc:'Mango madera, hoja robusta.',price:42,weight_g:210,volume_l:0.05,material:'Acero carbono',rating:4.6,origin:'Amazon',category:'Herramientas',type:'Cuchillos',image:'https://images.unsplash.com/photo-1581605405669-8a9b5b1c57e8?auto=format&fit=crop&w=1200&q=70',link:'https://www.amazon.es/dp/example4'},
+
+  // Iluminación
+  {id:'A2',name:'Linterna Táctica LED 2000LM',desc:'USB, zoom, IPX4.',price:29,weight_g:220,volume_l:0.1,material:'Aluminio',rating:4.3,origin:'Amazon',category:'Iluminación',type:'Linternas',image:'https://images.unsplash.com/photo-1508780709619-79562169bc64?auto=format&fit=crop&w=1200&q=70',link:'https://www.amazon.es/dp/example2'},
+  {id:'AL1',name:'Linterna LED 10000LM',desc:'Zoom, varios modos.',price:15,weight_g:150,volume_l:0.12,material:'Aluminio 6061',rating:4.3,origin:'AliExpress',category:'Iluminación',type:'Linternas',image:'https://images.unsplash.com/photo-1516306580123-e6e52b1b7bff?auto=format&fit=crop&w=1200&q=70',link:'https://es.aliexpress.com/item/example1'},
+  {id:'S2',name:'Barras ChemLight (x4)',desc:'Señalización nocturna.',price:12,weight_g:40,volume_l:0.02,material:'Químico',rating:4.4,origin:'Sherman',category:'Iluminación',type:'Señalización',image:'https://images.unsplash.com/photo-1531685250784-7569952593d2?auto=format&fit=crop&w=1200&q=70',link:'https://www.sherman-survival.com/product/chemlight'},
+
+  // Agua / filtros y recipientes
+  {id:'M1',name:'LifeStraw Personal',desc:'Filtra 4000L, 99.9999% bacterias.',price:25,weight_g:56,volume_l:0.15,material:'Fibra',rating:4.8,origin:'Mildot',category:'Agua',type:'Filtros de agua',image:'https://images.unsplash.com/photo-1554568218-0f1715e72254?auto=format&fit=crop&w=1200&q=70',link:'https://www.mildot.es/product/lifestraw'},
+  {id:'M2',name:'Sawyer MINI',desc:'Ligero y efectivo.',price:35,weight_g:65,volume_l:0.12,material:'Polímero',rating:4.7,origin:'Mildot',category:'Agua',type:'Filtros de agua',image:'https://images.unsplash.com/photo-1624643950599-6cb05b1a44b2?auto=format&fit=crop&w=1200&q=70',link:'https://www.mildot.es/product/sawyer-mini'},
+  {id:'D5',name:'Botella Isotérmica 1L',desc:'Acero inoxidable, duradera.',price:22,weight_g:320,volume_l:1,material:'Acero',rating:4.6,origin:'Decathlon',category:'Agua',type:'Cantimploras',image:'https://images.unsplash.com/photo-1532635047-2ee3f7d4a0d3?auto=format&fit=crop&w=1200&q=70',link:'https://www.decathlon.es/p/example5'},
+
+  // Refugio / dormir
+  {id:'D2',name:'Saco Vivac 3 estaciones',desc:'Compacto y cálido.',price:79,weight_g:980,volume_l:12,material:'Nylon ripstop',rating:4.4,origin:'Decathlon',category:'Refugio',type:'Sacos de dormir',image:'https://images.unsplash.com/photo-1499696010180-025ef6e1a8f6?auto=format&fit=crop&w=1200&q=70',link:'https://www.decathlon.es/p/example2'},
+  {id:'S4',name:'Bolsa de Dormir Compacta',desc:'Compresible, 3 estaciones.',price:89,weight_g:920,volume_l:9,material:'Nylon',rating:4.5,origin:'Sherman',category:'Refugio',type:'Sacos de dormir',image:'https://images.unsplash.com/photo-1533587851505-d119e13fa0d7?auto=format&fit=crop&w=1200&q=70',link:'https://www.sherman-survival.com/product/sleep-bag'},
+  {id:'AL3',name:'Hornillo Plegable',desc:'Ligero, cocina en ruta.',price:22,weight_g:240,volume_l:0.3,material:'Acero',rating:4.0,origin:'AliExpress',category:'Cocina',type:'Hornillos',image:'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=70',link:'https://es.aliexpress.com/item/example3'},
+
+  // Salud / botiquín
+  {id:'T2',name:'Kit Primeros Auxilios (80 pcs)',desc:'Compacto para emergencias.',price:18,weight_g:220,volume_l:1.2,material:'Nylon/Plástico',rating:4.1,origin:'Temu',category:'Salud',type:'Botiquines',image:'https://images.unsplash.com/photo-1512678080530-7760d81faba6?auto=format&fit=crop&w=1200&q=70',link:'https://www.temu.com/item/example2'},
+
+  // Multiherramientas
+  {id:'S1',name:'Leatherman Wave',desc:'18 herramientas, funda.',price:120,weight_g:240,volume_l:0.25,material:'Acero/Titanio',rating:4.9,origin:'Sherman',category:'Herramientas',type:'Multiherramientas',image:'https://images.unsplash.com/photo-1580281658621-0ef3a3ad0fb7?auto=format&fit=crop&w=1200&q=70',link:'https://www.sherman-survival.com/product/leatherman-wave'},
+
+  // Fuego
+  {id:'D3',name:'Ferrocerio + Pedernal',desc:'Chispa fiable en húmedo.',price:14,weight_g:110,volume_l:0.05,material:'Ferrocerio',rating:4.5,origin:'Decathlon',category:'Fuego',type:'Encendido de fuego',image:'https://images.unsplash.com/photo-1523920290228-4f321a939b98?auto=format&fit=crop&w=1200&q=70',link:'https://www.decathlon.es/p/example3'},
+
+  // Energía / solar
+  {id:'A6',name:'Panel Solar 22W Plegable',desc:'Carga en marcha.',price:69,weight_g:420,volume_l:0.6,material:'Silicio',rating:4.2,origin:'Amazon',category:'Energía',type:'Paneles solares',image:'https://images.unsplash.com/photo-1509395176047-4a66953fd231?auto=format&fit=crop&w=1200&q=70',link:'https://www.amazon.es/dp/example6'},
+
+  // Agua químico
+  {id:'M5',name:'Tabletas Potabilizadoras',desc:'Yodo/cloro para rutas.',price:6,weight_g:18,volume_l:0.01,material:'Químicos',rating:4.0,origin:'Mildot',category:'Agua',type:'Químicos agua',image:'https://images.unsplash.com/photo-1617038260897-5a2fe8b98cb5?auto=format&fit=crop&w=1200&q=70',link:'https://www.mildot.es/product/tablets'},
+
+  // Señalización / orientación
+  {id:'AL6',name:'Mapa impermeable',desc:'Resistente al agua.',price:6.5,weight_g:75,volume_l:0.05,material:'Paper+PVC',rating:4.0,origin:'AliExpress',category:'Navegación',type:'Mapas',image:'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=70',link:'https://es.aliexpress.com/item/example6'},
+  {id:'AL4',name:'Brújula militar',desc:'Con clinómetro.',price:7,weight_g:50,volume_l:0.02,material:'Plástico/Metal',rating:4.1,origin:'AliExpress',category:'Navegación',type:'Brújulas',image:'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=70',link:'https://es.aliexpress.com/item/example4'},
+
+  // Refugio / bolsas estancas
+  {id:'T4',name:'Saco Estanco 20L',desc:'Protege del agua.',price:9,weight_g:80,volume_l:20,material:'TPU',rating:4.0,origin:'Temu',category:'Refugio',type:'Bolsas estancas',image:'https://images.unsplash.com/photo-1517959105821-eaf2591984c7?auto=format&fit=crop&w=1200&q=70',link:'https://www.temu.com/item/example4'},
+
+  // Comunicación
+  {id:'S3',name:'Radio Emergencia Manivela',desc:'AM/FM, solar, USB.',price:45,weight_g:330,volume_l:0.7,material:'Plástico',rating:4.3,origin:'Sherman',category:'Comunicación',type:'Radios',image:'https://images.unsplash.com/photo-1501045661006-fcebe0257c3f?auto=format&fit=crop&w=1200&q=70',link:'https://www.sherman-survival.com/product/emergency-radio'},
+];
+
+/** ====== RECOMENDACIONES POR MOCHILA ======
+ * El menú derecho muestra arriba estas secciones (types) en este orden,
+ * y después el resto de types en orden alfabético.
+ */
+const PACKS = {
+  "Paseo":            ["Cantimploras","Linternas","Botiquines","Mapas"],
+  "24h":              ["Cantimploras","Botiquines","Linternas","Multiherramientas","Encendido de fuego"],
+  "72h":              ["Filtros de agua","Cantimploras","Botiquines","Linternas","Multiherramientas","Sacos de dormir","Hornillos"],
+  "Apocalipsis":      ["Filtros de agua","Paneles solares","Multiherramientas","Sacos de dormir","Encendido de fuego","Radios"],
+  "Objetos sueltos":  ["Multiherramientas","Linternas","Cantimploras","Mapas"]
+};
+
+const STORE_LIST = ["Amazon","Temu","AliExpress","Decathlon","Mildot","Sherman"];
+
+const state = {
+  pack: getInitialPack(),              // "72h" etc → mapearemos a claves anteriores
+  activeType: localStorage.getItem('m72_activeType') || null,
+  q: localStorage.getItem('m72_q') || "",
+  price: +(localStorage.getItem('m72_price') || 200),
+  weight: +(localStorage.getItem('m72_weight') || 2000),
+  vol: +(localStorage.getItem('m72_vol') || 60),
+  rating: +(localStorage.getItem('m72_rating') || 0),
+  stores: JSON.parse(localStorage.getItem('m72_stores') || JSON.stringify(STORE_LIST)),
+};
+
+function getInitialPack(){
+  const url = new URL(location.href);
+  const byParam = url.searchParams.get('pack');
+  if(byParam){ localStorage.setItem('m72_packType', byParam); return byParam; }
+  const stored = localStorage.getItem('m72_packType');
+  return stored || "72h";
+}
+
+function packLabel(p){
+  const map = {"paseo":"Paseo","24h":"24h","72h":"72h","apocalipsis":"Apocalipsis","objetos":"Objetos sueltos"};
+  return map[(p||"").toLowerCase()] || p;
+}
+
+/** ====== UI refs ====== **/
+const el = sel => document.querySelector(sel);
+const grid = el('#grid');
+const counter = el('#counter');
+const typeMenu = el('#typeMenu');
+const storesBox = el('#storesBox');
+const datalist = el('#dl');
+const packName = el('#packName');
+const subPacks = el('#subPacks');
+
+/** ====== INIT ====== **/
+init();
+function init(){
+  // datalist
+  datalist.innerHTML = [...new Set(PRODUCTS.map(p=>p.name))].slice(0,150).map(n=>`<option value="${n}">`).join('');
+  // stores
+  storesBox.innerHTML = STORE_LIST.map(s=>{
+    const ck = state.stores.includes(s) ? 'checked' : '';
+    return `<label class="chip"><input type="checkbox" value="${s}" ${ck}> ${s}</label>`;
+  }).join('');
+  // inputs
+  el('#q').value = state.q;
+  el('#price').value = state.price; el('#priceVal').textContent = state.price + "€";
+  el('#weight').max = 2000; el('#weight').value = state.weight; el('#weightVal').textContent = state.weight + "g";
+  el('#vol').value = state.vol; el('#volVal').textContent = state.vol + "L";
+  document.querySelectorAll('input[name="rt"]').forEach(r => { if(+r.value===state.rating) r.checked=true; });
+
+  // pack pills (arriba)
+  const packKeys = ["Objetos sueltos","Paseo","24h","72h","Apocalipsis"];
+  subPacks.innerHTML = packKeys.map(k=>{
+    const active = packLabel(state.pack)===k ? 'pill active':'pill';
+    return `<button class="${active}" data-pack="${k}">${k}</button>`;
+  }).join('');
+  subPacks.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click',()=>{ state.pack=b.dataset.pack; localStorage.setItem('m72_packType',state.pack); state.activeType=null; buildTypeMenu(); apply(); });
+  });
+
+  packName.textContent = packLabel(state.pack);
+  // events
+  wireEvents();
+  buildTypeMenu();
+  apply();
+}
+
+function wireEvents(){
+  el('#btnBuscar').addEventListener('click', ()=>{ state.q = el('#q').value.trim(); persist(); apply(); });
+  el('#btnReset').addEventListener('click', ()=> resetAll());
+  el('#price').addEventListener('input', e=> el('#priceVal').textContent = e.target.value+"€");
+  el('#weight').addEventListener('input', e=> el('#weightVal').textContent = e.target.value+"g");
+  el('#vol').addEventListener('input', e=> el('#volVal').textContent = e.target.value+"L");
+  el('#apply').addEventListener('click', ()=>{
+    state.price = +el('#price').value;
+    state.weight = +el('#weight').value;
+    state.vol = +el('#vol').value;
+    state.rating = +document.querySelector('input[name="rt"]:checked').value;
+    state.stores = [...storesBox.querySelectorAll('input[type="checkbox"]:checked')].map(i=>i.value);
+    persist(); apply();
+  });
+  el('#q').addEventListener('keydown', e=>{ if(e.key==='Enter') { state.q=el('#q').value.trim(); persist(); apply(); }});
+}
+
+function resetAll(){
+  state.q=""; el('#q').value="";
+  state.price=200; el('#price').value=200; el('#priceVal').textContent="200€";
+  state.weight=2000; el('#weight').value=2000; el('#weightVal').textContent="2000g";
+  state.vol=60; el('#vol').value=60; el('#volVal').textContent="60L";
+  state.rating=0; document.querySelector('input[name="rt"][value="0"]').checked=true;
+  state.stores = STORE_LIST.slice();
+  storesBox.querySelectorAll('input[type="checkbox"]').forEach(i=> i.checked=true);
+  state.activeType=null;
+  persist(); buildTypeMenu(); apply();
+}
+
+function persist(){
+  localStorage.setItem('m72_q', state.q);
+  localStorage.setItem('m72_price', state.price);
+  localStorage.setItem('m72_weight', state.weight);
+  localStorage.setItem('m72_vol', state.vol);
+  localStorage.setItem('m72_rating', state.rating);
+  localStorage.setItem('m72_stores', JSON.stringify(state.stores));
+  localStorage.setItem('m72_activeType', state.activeType || "");
+  localStorage.setItem('m72_packType', state.pack);
+}
+
+/** ====== MENÚ RODANTE DERECHO ====== **/
+function buildTypeMenu(){
+  packName.textContent = packLabel(state.pack);
+  const allTypes = [...new Set(PRODUCTS.map(p=>p.type))];
+  const recoList = PACKS[packLabel(state.pack)] || [];
+  const rest = allTypes.filter(t=> !recoList.includes(t)).sort((a,b)=> a.localeCompare(b,'es'));
+  const ordered = [...recoList, ...rest];
+
+  // si no hay type activo, cogemos el primero recomendado o "Todos"
+  if(!state.activeType){
+    state.activeType = ordered[0] || null;
+    persist();
+  }
+
+  typeMenu.innerHTML = ordered.map(t=>{
+    const isReco = recoList.includes(t);
+    const isActive = state.activeType===t ? 'active':'';
+    return `<div class="type ${isActive} ${isReco?'reco':''}" data-type="${t}">
+      <div>${t}</div>
+      <span class="tag">${isReco?'Recomendado':'Tipo'}</span>
+    </div>`;
+  }).join('');
+
+  typeMenu.querySelectorAll('.type').forEach(n=>{
+    n.addEventListener('click', ()=>{
+      state.activeType = n.dataset.type;
+      persist();
+      buildTypeMenu(); // para refrescar activo
+      apply();
+    });
+  });
+}
+
+/** ====== FILTRADO ====== **/
+function apply(){
+  // base: por tienda
+  let res = PRODUCTS.filter(p=> state.stores.includes(p.origin));
+  // por type activo
+  if(state.activeType){ res = res.filter(p=> p.type === state.activeType); }
+  // búsqueda
+  const q = (state.q||"").toLowerCase();
+  if(q){
+    res = res.filter(p => [p.name,p.desc,p.material,p.category,p.type].some(x=> (x||"").toLowerCase().includes(q)));
+  }
+  // sliders / rating
+  res = res.filter(p => (p.price??999) <= state.price);
+  res = res.filter(p => (p.weight_g??99999) <= state.weight);
+  res = res.filter(p => (p.volume_l??999) <= state.vol);
+  if(state.rating>0){ res = res.filter(p => (p.rating??0) >= state.rating); }
+
+  render(res);
+  logAnalysis();
+}
+
+function render(list){
+  counter.textContent = `${list.length} resultados • Mochila ${packLabel(state.pack)} • Tipo: ${state.activeType||'—'}`;
+  grid.innerHTML = '';
+  if(list.length===0){ el('#empty').style.display='block'; return; } else { el('#empty').style.display='none'; }
+
+  const frag = document.createDocumentFragment();
+  list.forEach(p=>{
+    const card = document.createElement('article');
+    card.className='card';
+    card.innerHTML = `
+      <div class="img"><img src="${p.image}" alt="${p.name}"></div>
+      <div class="body">
+        <div class="title">
+          <h4 style="margin:0;font-size:15px">${p.name}</h4>
+          <span class="badge ${badgeClass(p.origin)}">${p.origin}</span>
+        </div>
+        <div class="specs">
+          <span class="price">${fmtPrice(p.price)}</span>
+          <span>· ${p.weight_g}g</span>
+          <span>· ${p.volume_l}L</span>
+          <span>· ${p.material}</span>
+          <span>· ★ ${p.rating}</span>
+        </div>
+        <div class="muted" style="min-height:36px">${p.desc}</div>
+      </div>
+      <div class="foot">
+        <a class="btn ghost" target="_blank" rel="noopener" href="${p.link}">Ver en tienda</a>
+        <button class="btn" data-id="${p.id}">Añadir</button>
+      </div>
+    `;
+    frag.appendChild(card);
+  });
+  grid.appendChild(frag);
+
+  // botones añadir (a futuro podemos llevar un “contenido de mochila”)
+  grid.querySelectorAll('.btn[data-id]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      b.textContent = 'Añadido ✓';
+      b.disabled = true;
+      b.style.opacity = .7;
+      // hook para futuras fases (guardar contenidos de mochila)
+    });
+  });
+}
+
+function badgeClass(origin){
+  return {
+    "Amazon":"amazon","Temu":"temu","AliExpress":"aliexpress","Decathlon":"decathlon","Mildot":"mildot","Sherman":"sherman"
+  }[origin] || 'amazon';
+}
+function fmtPrice(v){ return (v%1===0)? `${v}€` : `${v.toFixed(2)}€`; }
+
+/** ====== CONSOLA: análisis interno ====== **/
+function logAnalysis(){
+  const detailCount = {};
+  PRODUCTS.forEach(p=>{
+    const detailed = (p.weight_g!=null && p.volume_l!=null) ? 1:0;
+    detailCount[p.origin] = (detailCount[p.origin]||0) + detailed;
+  });
+  let top=null, n=-1;
+  for(const k in detailCount){ if(detailCount[k]>n){ top=k; n=detailCount[k]; } }
+  console.log("Tienda con más datos (peso+volumen):", detailCount, "→ Top:", top);
+}
+</script>
+</body>
+</html>

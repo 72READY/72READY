@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Mochila72 · Productos</title>
+<style>
+:root{
+  --verde:#4CAF50; --naranja:#FF6B00; --negro:#121212; --borde:rgba(255,255,255,.12);
+  --badge-amazon:#2e7d32; --badge-temu:#1976d2; --badge-aliexpress:#ff5722; --badge-decathlon:#0b8043; --badge-mildot:#455a64; --badge-sherman:#6a1b9a;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:linear-gradient(180deg,#0f120f,#151515);color:#eee;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}
+a{color:inherit;text-decoration:none}
+
+/* ====== Top: 10% banner + 3% fila (packs + search + entorno) ====== */
+.top{position:sticky;top:0;z-index:50;display:grid;grid-template-rows:10vh 3vh;border-bottom:1px solid var(--borde);background:linear-gradient(180deg,rgba(0,0,0,.75),rgba(0,0,0,.55))}
+.top__banner{position:relative;height:10vh;overflow:hidden;background:url('https://images.unsplash.com/photo-1504208434309-cb69f4fe52b0?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat}
+.top__banner::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.65),rgba(0,0,0,.35))}
+.top__logo{position:absolute;inset:0;display:flex;align-items:center;gap:10px;padding:0 14px;color:#fff;font-weight:900;letter-spacing:.3px;font-size:clamp(10px,1.6vh,18px)}
+.logoBadge{width:clamp(20px,2.2vh,28px);height:clamp(20px,2.2vh,28px);border-radius:8px;background:var(--verde);display:grid;place-items:center}
+
+.top__row{display:grid;grid-template-columns:1fr 1fr 320px;gap:8px;align-items:center;padding:0 8px;height:3vh}
+.top__packs{height:100%;display:flex;align-items:center;gap:6px;overflow:auto}
+.pill{padding:0 .75rem;height:2.2vh;display:inline-flex;align-items:center;border-radius:999px;border:1px solid var(--borde);font-size:clamp(9px,1.2vh,12px);white-space:nowrap;cursor:pointer;background:#161616}
+.pill.active{background:rgba(255,107,0,.2);border-color:var(--naranja)}
+.top__search{height:100%;display:flex;align-items:center;gap:6px}
+.top__search input[type="search"]{flex:1;height:2.2vh;min-height:2.2vh;padding:0 .6rem;border-radius:8px;border:1px solid var(--borde);background:#1a1a1a;color:#eee;font-size:clamp(10px,1.2vh,12px)}
+.btn{background:var(--naranja);color:#fff;border:none;border-radius:8px;padding:0 .7rem;height:2.2vh;min-height:2.2vh;display:inline-flex;align-items:center;gap:6px;font-weight:800;cursor:pointer;font-size:clamp(10px,1.2vh,12px)}
+.ghost{background:transparent;border:1px solid var(--borde);color:#ddd}
+
+/* Selector entorno */
+.top__env{display:flex;align-items:center;gap:6px;justify-content:flex-end}
+.top__env .pill{height:2.2vh}
+
+/* ====== Cuerpo ====== */
+.body{height:calc(100vh - 13vh);display:grid;grid-template-columns:1fr;gap:10px;padding:10px}
+@media(min-width:1160px){.body{grid-template-columns:240px 1fr 240px}}
+aside.left,aside.right,main{background:#121212;border:1px solid var(--borde);border-radius:12px;min-height:0}
+aside.left,aside.right{overflow:auto;max-height:calc(100%)}
+
+/* Filtros */
+.filtros{padding:10px}
+.filtros h3{margin:0 0 8px;font-size:clamp(11px,1.2vh,13px)}
+.section{border:1px solid var(--borde);border-radius:10px;padding:8px;margin-bottom:8px;background:#151515}
+.section .title{font-weight:900;margin-bottom:6px;font-size:clamp(10px,1.1vh,12px)}
+.section input[type="search"], .section select, .section input[type="number"], .section input[type="range"]{width:100%;padding:6px 8px;border-radius:8px;border:1px solid var(--borde);background:#1a1a1a;color:#eee;font-size:clamp(10px,1.1vh,12px)}
+.section select{min-height:112px}
+.inline{display:flex;gap:6px}
+.inline>div{flex:1}
+.subnote{font-size:clamp(9px,1vh,11px);color:#9ab}
+.applyBtn{width:100%;margin-top:4px}
+
+/* Tipos derecha */
+.types{padding:8px}
+.menuTypes{display:flex;flex-direction:column;gap:6px}
+.type{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:10px;border:1px solid var(--borde);cursor:pointer;font-size:clamp(10px,1.1vh,12px)}
+.type:hover{background:#1a1a1a}
+.type.active{background:rgba(76,175,80,.14);border-color:#295f2b}
+.tag{font-size:clamp(8px,.9vh,10px);padding:2px 6px;border-radius:6px;background:#222}
+.type.reco .tag{background:#244b27;color:#b7ffcc}
+
+/* Centro */
+main{padding:10px;display:flex;flex-direction:column;min-width:0}
+.infoBar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.muted{color:#9aa;font-size:clamp(10px,1.1vh,12px)}
+.grid{display:grid;grid-template-columns:repeat(1,1fr);gap:10px;overflow:auto}
+@media(min-width:720px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1280px){.grid{grid-template-columns:repeat(3,1fr)}}
+
+.card{background:#141414;border:1px solid var(--borde);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;transition:transform .2s}
+.card:hover{transform:translateY(-4px)}
+.img{height:200px;background:#0c0c0c;overflow:hidden}
+.img img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.card:hover .img img{transform:scale(1.06)}
+.bodyCard{padding:10px;display:flex;flex-direction:column;gap:8px}
+.title{display:flex;justify-content:space-between;gap:8px}
+.badge{font-size:11px;font-weight:800;color:#fff;padding:6px 8px;border-radius:999px}
+.amazon{background:var(--badge-amazon)} .temu{background:var(--badge-temu)} .aliexpress{background:var(--badge-aliexpress)} .decathlon{background:var(--badge-decathlon)} .mildot{background:var(--badge-mildot)} .sherman{background:var(--badge-sherman)}
+.specs{display:flex;flex-wrap:wrap;gap:10px;color:#aab;font-size:12px}
+.price{font-weight:900}
+.foot{display:flex;justify-content:space-between;align-items:center;padding:10px;border-top:1px dashed var(--borde)}
+.empty{padding:30px;text-align:center;border:1px dashed var(--borde);border-radius:12px}
+</style>
+</head>
+<body>
+
+<!-- ====== TOP ====== -->
+<div class="top">
+  <div class="top__banner"><div class="top__logo"><div class="logoBadge">M72</div> Mochila72 · Mundo apocalíptico (modo prueba)</div></div>
+  <div class="top__row">
+    <div class="top__packs" id="packMenu"></div>
+    <div class="top__search">
+      <input id="q" type="search" placeholder="Buscar: cuchillo, linterna, filtro agua..." list="dl">
+      <datalist id="dl"></datalist>
+      <button class="btn" id="btnBuscar">Buscar</button>
+      <button class="btn ghost" id="btnReset">Reset</button>
+    </div>
+    <div class="top__env">
+      <span style="font-size:clamp(10px,1.1vh,12px)">Entorno</span>
+      <button class="pill" id="envU" data-env="Urbano">Urbano</button>
+      <button class="pill" id="envC" data-env="Campo">Campo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== BODY ====== -->
+<div class="body">
+  <aside class="left">
+    <div class="filtros">
+      <h3>Filtros</h3>
+      <div id="filtersBox"></div>
+      <button class="btn applyBtn" id="apply">Aplicar</button>
+    </div>
+  </aside>
+
+  <main>
+    <div class="infoBar">
+      <div class="muted">Mochila: <strong id="packName">—</strong> (<span id="envName">—</span>) · Tipo: <strong id="typeName">—</strong></div>
+      <div class="muted" id="counter">0 resultados</div>
+    </div>
+    <div id="grid" class="grid"></div>
+    <div id="empty" class="empty" style="display:none">No hay resultados. Ajusta filtros o cambia el tipo.</div>
+  </main>
+
+  <aside class="right">
+    <div class="types">
+      <h3 style="margin:0 0 8px;font-size:clamp(11px,1.2vh,13px)">Tipos</h3>
+      <div id="typeMenu" class="menuTypes"></div>
+    </div>
+  </aside>
+</div>
+
+<script>
+/* ====== DATA DEMO (igual que antes, reducido para ejemplo) ====== */
+const PRODUCTS = [
+  {id:'S5',brand:'Sherman',name:'Cuchillo Supervivencia Sherman Pro',desc:'Acero 1095, hoja 14cm, goma antideslizante.',price:68,weight_g:310,volume_l:0.06,material:'Acero 1095',blade_length_cm:14,rating:4.6,origin:'Sherman',category:'Herramientas',type:'Cuchillos',image:'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1200&q=70',link:'https://www.sherman-survival.com/product/pro-knife'},
+  {id:'D1',brand:'MoraKniv',name:'Cuchillo MoraKniv Bushcraft',desc:'Acero carbono, funda incluida.',price:35,weight_g:200,volume_l:0.04,material:'Acero carbono',blade_length_cm:10.5,rating:4.7,origin:'Decathlon',category:'Herramientas',type:'Cuchillos',image:'https://images.unsplash.com/photo-1613776262984-7bd3a8a3c60f?auto=format&fit=crop&w=1200&q=70',link:'https://www.decathlon.es/p/example1'},
+  {id:'A4',brand:'Genérico',name:'Cuchillo Bushcraft 12cm',desc:'Mango madera, hoja robusta.',price:42,weight_g:210,volume_l:0.05,material:'Acero carbono',blade_length_cm:12,rating:4.6,origin:'Amazon',category:'Herramientas',type:'Cuchillos',image:'https://images.unsplash.com/photo-1581605405669-8a9b5b1c57e8?auto=format&fit=crop&w=1200&q=70',link:'https://www.amazon.es/dp/example4'},
+
+  {id:'A2',brand:'Wuben',name:'Linterna Táctica LED 2000LM',desc:'USB, zoom, IPX4.',price:29,weight_g:220,volume_l:0.1,material:'Aluminio',lumens:2000,power_source:'USB',rating:4.3,origin:'Amazon',category:'Iluminación',type:'Linternas',image:'https://images.unsplash.com/photo-1508780709619-79562169bc64?auto=format&fit=crop&w=1200&q=70',link:'https://www.amazon.es/dp/example2'},
+  {id:'AL1',brand:'Sofirn',name:'Linterna LED 10000LM',desc:'Zoom, varios modos.',price:15,weight_g:150,volume_l:0.12,material:'Aluminio 6061',lumens:10000,power_source:'USB',rating:4.3,origin:'AliExpress',category:'Iluminación',type:'Linternas',image:'https://images.unsplash.com/photo-1516306580123-e6e52b1b7bff?auto=format&fit=crop&w=1200&q=70',link:'https://es.aliexpress.com/item/example1'},
+
+  {id:'S2',brand:'Cyalume',name:'Barras ChemLight (x4)',desc:'Señalización nocturna.',price:12,weight_g:40,volume_l:0.02,material:'Químico',rating:4.4,origin:'Sherman',category:'Iluminación',type:'Señalización',image:'https://images.unsplash.com/photo-1531685250784-7569952593d2?auto=format&fit=crop&w=1200&q=70',link:'https://www.sherman-survival.com/product/chemlight'},
+
+  {id:'M1',brand:'LifeStraw',name:'LifeStraw Personal',desc:'Filtra 4000L, 99.9999% bacterias.',price:25,weight_g:56,volume_l:0.15,material:'Fibra',filter_type:'Paja',filter_capacity_l:4000,rating:4.8,origin:'Mildot',category:'Agua',type:'Filtros de agua',image:'https://images.unsplash.com/photo-1554568218-0f1715e72254?auto=format&fit=crop&w=1200&q=70',link:'https://www.mildot.es/product/lifestraw'},
+  {id:'M2',brand:'Sawyer',name:'Sawyer MINI',desc:'Ligero y efectivo.',price:35,weight_g:65,volume_l:0.12,material:'Polímero',filter_type:'Paja',filter_capacity_l:3800,rating:4.7,origin:'Mildot',category:'Agua',type:'Filtros de agua',image:'https://images.unsplash.com/photo-1624643950599-6cb05b1a44b2?auto=format&fit=crop&w=1200&q=70',link:'https://www.mildot.es/product/sawyer-mini'},
+  {id:'D5',brand:'Quechua',name:'Botella Isotérmica 1L',desc:'Acero inoxidable, duradera.',price:22,weight_g:320,volume_l:1,material:'Acero',rating:4.6,origin:'Decathlon',category:'Agua',type:'Cantimploras',image:'https://images.unsplash.com/photo-1532635047-2ee3f7d4a0d3?auto=format&fit=crop&w=1200&q=70',link:'https://www.decathlon.es/p/example5'},
+
+  {id:'D2',brand:'Forclaz',name:'Saco Vivac 3 estaciones',desc:'Compacto y cálido.',price:79,weight_g:980,volume_l:12,material:'Nylon ripstop',rating:4.4,origin:'Decathlon',category:'Refugio',type:'Sacos de dormir',image:'https://images.unsplash.com/photo-1499696010180-025ef6e1a8f6?auto=format&fit=crop&w=1200&q=70',link:'https://www.decathlon.es/p/example2'},
+  {id:'S4',brand:'Sherman',name:'Bolsa de Dormir Compacta',desc:'Compresible, 3 estaciones.',price:89,weight_g:920,volume_l:9,material:'Nylon',rating:4.5,origin:'Sherman',category:'Refugio',type:'Sacos de dormir',image:'https://images.unsplash.com/photo-1533587851505-d119e13fa0d7?auto=format&fit=crop&w=1200&q=70',link:'https://www.sherman-survival.com/product/sleep-bag'},
+  {id:'AL3',brand:'BRS',name:'Hornillo Plegable',desc:'Ligero, cocina en ruta.',price:22,weight_g:240,volume_l:0.3,material:'Acero',fuel_type:'Butano',rating:4.0,origin:'AliExpress',category:'Cocina',type:'Hornillos',image:'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=70',link:'https://es.aliexpress.com/item/example3'},
+
+  {id:'T2',brand:'Genérico',name:'Kit Primeros Auxilios (80 pcs)',desc:'Compacto para emergencias.',price:18,weight_g:220,volume_l:1.2,material:'Nylon/Plástico',rating:4.1,origin:'Temu',category:'Salud',type:'Botiquines',image:'https://images.unsplash.com/photo-1512678080530-7760d81faba6?auto=format&fit=crop&w=1200&q=70',link:'https://www.temu.com/item/example2'},
+
+  {id:'S1',brand:'Leatherman',name:'Leatherman Wave',desc:'18 herramientas, funda.',price:120,weight_g:240,volume_l:0.25,material:'Acero/Titanio',tools_count:18,rating:4.9,origin:'Sherman',category:'Herramientas',type:'Multiherramientas',image:'https://images.unsplash.com/photo-1580281658621-0ef3a3ad0fb7?auto=format&fit=crop&w=1200&q=70',link:'https://www.sherman-survival.com/product/leatherman-wave'},
+
+  {id:'D3',brand:'Quechua',name:'Ferrocerio + Pedernal',desc:'Chispa fiable en húmedo.',price:14,weight_g:110,volume_l:0.05,material:'Ferrocerio',rating:4.5,origin:'Decathlon',category:'Fuego',type:'Encendido de fuego',image:'https://images.unsplash.com/photo-1523920290228-4f321a939b98?auto=format&fit=crop&w=1200&q=70',link:'https://www.decathlon.es/p/example3'},
+
+  {id:'A6',brand:'Anker',name:'Panel Solar 22W Plegable',desc:'Carga en marcha.',price:69,weight_g:420,volume_l:0.6,material:'Silicio',power_w:22,rating:4.2,origin:'Amazon',category:'Energía',type:'Paneles solares',image:'https://images.unsplash.com/photo-1509395176047-4a66953fd231?auto=format&fit=crop&w=1200&q=70',link:'https://www.amazon.es/dp/example6'},
+
+  {id:'M5',brand:'Potable Aqua',name:'Tabletas Potabilizadoras',desc:'Yodo/cloro para rutas.',price:6,weight_g:18,volume_l:0.01,material:'Químicos',rating:4.0,origin:'Mildot',category:'Agua',type:'Químicos agua',image:'https://images.unsplash.com/photo-1617038260897-5a2fe8b98cb5?auto=format&fit=crop&w=1200&q=70',link:'https://www.mildot.es/product/tablets'},
+
+  {id:'AL6',brand:'Michelin',name:'Mapa impermeable',desc:'Resistente al agua.',price:6.5,weight_g:75,volume_l:0.05,material:'Paper+PVC',rating:4.0,origin:'AliExpress',category:'Navegación',type:'Mapas',image:'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=70',link:'https://es.aliexpress.com/item/example6'},
+  {id:'AL4',brand:'Suunto',name:'Brújula militar',desc:'Con clinómetro.',price:7,weight_g:50,volume_l:0.02,material:'Plástico/Metal',rating:4.1,origin:'AliExpress',category:'Navegación',type:'Brújulas',image:'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=70',link:'https://es.aliexpress.com/item/example4'},
+
+  {id:'T4',brand:'Naturehike',name:'Saco Estanco 20L',desc:'Protege del agua.',price:9,weight_g:80,volume_l:20,material:'TPU',rating:4.0,origin:'Temu',category:'Refugio',type:'Bolsas estancas',image:'https://images.unsplash.com/photo-1517959105821-eaf2591984c7?auto=format&fit=crop&w=1200&q=70',link:'https://www.temu.com/item/example4'},
+
+  {id:'S3',brand:'RunningSnail',name:'Radio Emergencia Manivela',desc:'AM/FM, solar, USB.',price:45,weight_g:330,volume_l:0.7,material:'Plástico',power_source:'Manivela/Solar/USB',rating:4.3,origin:'Sherman',category:'Comunicación',type:'Radios',image:'https://images.unsplash.com/photo-1501045661006-fcebe0257c3f?auto=format&fit=crop&w=1200&q=70',link:'https://www.sherman-survival.com/product/emergency-radio'},
+];
+
+/* ====== Tipos agrupados (para filtros condicionales) ====== */
+const TYPE_GROUP = {
+  "Cuchillos":"Herramientas","Multiherramientas":"Herramientas","Hachas":"Herramientas",
+  "Linternas":"Iluminación","Señalización":"Iluminación",
+  "Filtros de agua":"Agua","Cantimploras":"Agua","Químicos agua":"Agua",
+  "Sacos de dormir":"Refugio","Bolsas estancas":"Refugio",
+  "Hornillos":"Cocina",
+  "Botiquines":"Salud",
+  "Paneles solares":"Energía",
+  "Radios":"Comunicación",
+  "Mapas":"Navegación","Brújulas":"Navegación"
+};
+
+/* ====== RECOMENDADOS por mochila + entorno ====== */
+const RECO = {
+  "Objetos sueltos Urbano": ["Multiherramientas","Linternas/Frontales","Cantimploras","Filtros de agua","Botiquines","Encendido de fuego","Manta térmica","Powerbanks"],
+  "Objetos sueltos Campo":  ["Filtros de agua","Cantimploras","Frontales","Encendido de fuego","Multiherramientas","Cuchillos","Manta térmica","Paracord"],
+
+  "Paseo Urbano": ["Linternas EDC","Powerbanks","Cantimploras","Multiherramientas","Botiquines","Higiene","Documentación"],
+  "Paseo Campo":  ["Filtros de agua","Cantimploras","Linternas","Encendido de fuego","Multiherramientas","Cuchillos","Botiquines","Paracord","Mapas"],
+
+  "24h Urbano":  ["Cantimploras","Químicos agua","Hornillos","Botiquines","Powerbanks","Radios","Higiene","Documentación"],
+  "24h Campo":   ["Filtros de agua","Hornillos","Encendido de fuego","Cuchillos","Multiherramientas","Saco ligero","Linternas","Botiquines","Paracord","Mapas"],
+
+  "72h Urbano":  ["Cantimploras","Químicos agua","Hornillos","Menaje","Saco ligero","Linternas","Paneles solares","Powerbanks","Radios","Botiquines","Documentación"],
+  "72h Campo":   ["Filtros de agua","Químicos agua","Hornillos","Menaje","Tienda/Tarp","Saco 0–10 ºC","Esterillas","Multiherramientas","Cuchillos","Sierras","Encendido de fuego","Paneles solares","Powerbanks","Radios","Botiquines","Paracord"],
+
+  "Apocalipsis Urbano": ["Filtros (paja/bomba)","Depósitos agua","Hornillos multifuel","Cocina completa","Saco 0–5 ºC","Tienda","Multiherramientas","Cuchillos","Hachas","Paneles solares","Powerbanks","Cargadores","Radios","Walkies","Botiquines avanzados","Higiene","Reparación","Documentación"],
+  "Apocalipsis Campo":  ["Filtros bomba","Químicos","Depósitos agua","Hornillos multifuel","Cocina completa","Tienda 3 estaciones","Saco -5–0 ºC","Multiherramientas","Cuchillos","Hachas","Sierras","Ferrocerio","Paneles solares","Powerbanks","Radios","Botiquines","Higiene","Reparación","Paracord"]
+};
+
+/* ====== Filtros por tipo (añadido "Tienda web") ====== */
+const FILTER_SCHEMAS = {
+  "Cuchillos":[
+    {key:"brand",label:"Marca",kind:"facet"},
+    {key:"material",label:"Material de hoja",kind:"facet"},
+    {key:"blade_length_cm",label:"Longitud de hoja (cm)",kind:"range",min:5,max:25,step:1},
+    {key:"weight_g",label:"Peso (g)",kind:"range",min:0,max:1000,step:10},
+    {key:"origin",label:"Tienda web",kind:"facet"},
+  ],
+  "Multiherramientas":[
+    {key:"brand",label:"Marca",kind:"facet"},
+    {key:"tools_count",label:"Herramientas (mín)",kind:"range",min:0,max:30,step:1},
+    {key:"weight_g",label:"Peso (g)",kind:"range",min:0,max:1500,step:10},
+    {key:"origin",label:"Tienda web",kind:"facet"},
+  ],
+  "Hachas":[
+    {key:"brand",label:"Marca",kind:"facet"},
+    {key:"weight_g",label:"Peso (g)",kind:"range",min:0,max:3000,step:10},
+    {key:"origin",label:"Tienda web",kind:"facet"},
+  ],
+  "Linternas":[
+    {key:"brand",label:"Marca",kind:"facet"},
+    {key:"lumens",label:"Lumens (mín)",kind:"range",min:0,max:12000,step:100},
+    {key:"weight_g",label:"Peso (g)",kind:"range",min:0,max:1000,step:10},
+    {key:"power_source",label:"Alimentación",kind:"facet"},
+    {key:"origin",label:"Tienda web",kind:"facet"},
+  ],
+  "Señalización":[
+    {key:"brand",label:"Marca",kind:"facet"},
+    {key:"weight_g",label:"Peso (g)",kind:"range",min:0,max:500,step:5},
+    {key:"origin",label:"Tienda web",kind:"facet"},
+  ],
+  "Filtros de agua":[
+    {key:"brand",label:"Marca",kind:"facet"},
+    {key:"filter_type",label:"Tipo de filtro",kind:"facet"},
+    {key:"filter_capacity_l",label:"Capacidad filtrado (L)",kind:"range",min:0,max:5000,step:100},
+    {key:"weight_g",label:"Peso (g)",kind:"range",min:0,max:500,step:5},
+    {key:"origin",label:"Tienda web",kind:"facet"},
+  ],
+  "Cantimploras":[
+    {key:"brand",label:"Marca",kind:"facet"},
+    {key:"volume_l",label:"Capacidad (L)",kind:"range",min:0,max:5,step:0.1},
+    {key:"material",label:"Material",kind:"facet"},
+    {key:"weight_g",label:"Peso (g)",kind:"range",min:0,max:1500,step:10},
+    {key:"origin",label:"Tienda web",kind:"facet"},
+  ],
+  "Sacos de dormir":[
+    {key:"brand",label:"Marca",kind:"facet"},
+    {key:"weight_g",label:"Peso (g)",kind:"range",min:0,max:3000,step:10},
+    {key:"volume_l",label:"Volumen (L)",kind:"range",min:0,max:60,step:1},
+    {key:"material",label:"Material",kind:"facet"},
+    {key:"origin",label:"Tienda web",kind:"facet"},
+  ],
+  "Hornillos":[
+    {key:"brand",label:"Marca",kind:"facet"},
+    {key:"fuel_type",label:"Combustible",kind:"facet"},
+    {key:"weight_g",label:"Peso (g)",kind:"range",min:0,max:2000,step:10},
+    {key:"origin",label:"Tienda web",kind:"facet"},
+  ],
+  "Botiquines":[
+    {key:"brand",label:"Marca",kind:"facet"},
+    {key:"weight_g",label:"Peso (g)",kind:"range",min:0,max:3000,step:10},
+    {key:"origin",label:"Tienda web",kind:"facet"},
+  ],
+  "Paneles solares":[
+    {key:"brand",label:"Marca",kind:"facet"},
+    {key:"power_w",label:"Potencia (W, mín)",kind:"range",min:0,max:200,step:1},
+    {key:"weight_g",label:"Peso (g)",kind:"range",min:0,max:5000,step:10},
+    {key:"origin",label:"Tienda web",kind:"facet"},
+  ],
+  "Radios":[
+    {key:"brand",label:"Marca",kind:"facet"},
+    {key:"power_source",label:"Alimentación",kind:"facet"},
+    {key:"weight_g",label:"Peso (g)",kind:"range",min:0,max:3000,step:10},
+    {key:"origin",label:"Tienda web",kind:"facet"},
+  ],
+  "Químicos agua":[
+    {key:"brand",label:"Marca",kind:"facet"},
+    {key:"weight_g",label:"Peso (g)",kind:"range",min:0,max:1000,step:5},
+    {key:"origin",label:"Tienda web",kind:"facet"},
+  ],
+  "Mapas":[
+    {key:"brand",label:"Marca",kind:"facet"},
+    {key:"material",label:"Material",kind:"facet"},
+    {key:"weight_g",label:"Peso (g)",kind:"range",min:0,max:500,step:5},
+    {key:"origin",label:"Tienda web",kind:"facet"},
+  ],
+  "Brújulas":[
+    {key:"brand",label:"Marca",kind:"facet"},
+    {key:"material",label:"Material",kind:"facet"},
+    {key:"weight_g",label:"Peso (g)",kind:"range",min:0,max:500,step:5},
+    {key:"origin",label:"Tienda web",kind:"facet"},
+  ],
+  "Bolsas estancas":[
+    {key:"brand",label:"Marca",kind:"facet"},
+    {key:"volume_l",label:"Capacidad (L)",kind:"range",min:0,max:60,step:1},
+    {key:"weight_g",label:"Peso (g)",kind:"range",min:0,max:1000,step:10},
+    {key:"origin",label:"Tienda web",kind:"facet"},
+  ],
+};
+
+const state = {
+  pack: getInitialPack(),
+  env: getInitialEnv(),
+  activeType: localStorage.getItem('m72_activeType') || null,
+  q: localStorage.getItem('m72_q') || "",
+  facetFilters: load('m72_facetFilters') || {},
+  rangeFilters: load('m72_rangeFilters') || {},
+};
+
+function getInitialPack(){
+  const url = new URL(location.href);
+  const p = url.searchParams.get('pack');
+  if(p){ localStorage.setItem('m72_packType', p); return p; }
+  return localStorage.getItem('m72_packType') || '72h';
+}
+function getInitialEnv(){
+  const url = new URL(location.href);
+  const e = url.searchParams.get('env');
+  if(e){ localStorage.setItem('m72_env', e); return e; }
+  return localStorage.getItem('m72_env') || 'Urbano';
+}
+function packLabel(p){ const map={"paseo":"Paseo","24h":"24h","72h":"72h","apocalipsis":"Apocalipsis","objetos":"Objetos sueltos"}; return map[(p||"").toLowerCase()]||p; }
+function save(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+function load(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch{return null} }
+function persist(){
+  localStorage.setItem('m72_q', state.q);
+  localStorage.setItem('m72_activeType', state.activeType||"");
+  save('m72_facetFilters', state.facetFilters);
+  save('m72_rangeFilters', state.rangeFilters);
+  localStorage.setItem('m72_packType', state.pack);
+  localStorage.setItem('m72_env', state.env);
+}
+
+/* ====== REFS ====== */
+const $ = s=>document.querySelector(s);
+const packMenu = $('#packMenu'); const typeMenu = $('#typeMenu'); const filtersBox = $('#filtersBox'); const grid = $('#grid'); const counter = $('#counter');
+
+/* ====== INIT ====== */
+init();
+function init(){
+  // Packs
+  const packs = ["Objetos sueltos","Paseo","24h","72h","Apocalipsis"];
+  packMenu.innerHTML = packs.map(k=>{
+    const active = packLabel(state.pack)===k ? 'pill active':'pill';
+    return `<button class="${active}" data-pack="${k}">${k}</button>`;
+  }).join('') + `<span style="margin-left:8px;opacity:.7;font-size:clamp(10px,1.1vh,12px)">· Entorno:</span>`;
+  packMenu.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click',()=>{
+      state.pack = b.dataset.pack; state.activeType = null; persist();
+      buildTypeMenu(); buildFilters(); apply();
+    });
+  });
+
+  // Entorno pills
+  const envU = document.getElementById('envU'), envC = document.getElementById('envC');
+  function paintEnv(){ envU.classList.toggle('active', state.env==='Urbano'); envC.classList.toggle('active', state.env==='Campo'); $('#envName').textContent = state.env; }
+  paintEnv();
+  [envU, envC].forEach(el=> el.addEventListener('click', ()=>{ state.env = el.dataset.env; persist(); buildTypeMenu(); buildFilters(); apply(); paintEnv(); }));
+
+  // Búsqueda
+  $('#dl').innerHTML = [...new Set(PRODUCTS.map(p=>p.name))].slice(0,200).map(n=>`<option value="${n}">`).join('');
+  $('#q').value = state.q;
+  $('#btnBuscar').addEventListener('click', ()=>{ state.q = $('#q').value.trim(); persist(); apply(); });
+  $('#btnReset').addEventListener('click', ()=>{ state.q=""; $('#q').value=""; state.facetFilters={}; state.rangeFilters={}; persist(); buildFilters(); apply(); });
+  $('#q').addEventListener('keydown', e=>{ if(e.key==='Enter'){ state.q=$('#q').value.trim(); persist(); apply(); }});
+
+  buildTypeMenu();
+  buildFilters();
+  apply();
+}
+
+/* ====== Tipos (derecha) con recomendados según entorno ====== */
+function buildTypeMenu(){
+  // Todas las familias presentes en el dataset:
+  const allTypes = [...new Set(PRODUCTS.map(p=>p.type))];
+
+  // Recomendados por pack+entorno
+  const key = `${packLabel(state.pack)} ${state.env}`;
+  const reco = (RECO[key]||[]).filter(Boolean);
+
+  // Normaliza nombres que no estén en dataset (p. ej. “Menaje”, “Tienda/Tarp”, etc.)
+  // Aquí simplemente los mostramos si están; si no, los ignora y usa el resto alfabético.
+  const recoInDataset = reco.filter(t => allTypes.includes(t));
+  const rest = allTypes.filter(t=>!recoInDataset.includes(t)).sort((a,b)=>a.localeCompare(b,'es'));
+  const ordered = [...recoInDataset, ...rest];
+
+  if(!state.activeType) state.activeType = ordered[0] || null;
+
+  typeMenu.innerHTML = ordered.map(t=>{
+    const isReco = recoInDataset.includes(t);
+    const isActive = state.activeType===t ? 'active':'';
+    return `<div class="type ${isActive} ${isReco?'reco':''}" data-type="${t}">
+      <div>${t}</div><span class="tag">${isReco?'Recomendado':'Tipo'}</span>
+    </div>`;
+  }).join('');
+
+  typeMenu.querySelectorAll('.type').forEach(el=>{
+    el.addEventListener('click',()=>{
+      state.activeType = el.dataset.type; persist(); buildFilters(); apply();
+    });
+  });
+
+  document.getElementById('packName').textContent = packLabel(state.pack);
+  document.getElementById('typeName').textContent = state.activeType || '—';
+}
+
+/* ====== Filtros dinámicos por tipo ====== */
+function buildFilters(){
+  const type = state.activeType;
+  if(!type){ filtersBox.innerHTML = ''; return; }
+
+  let schema = (FILTER_SCHEMAS[type] || []).slice();
+
+  // Subrama en herramientas
+  const group = TYPE_GROUP[type];
+  if(group === 'Herramientas'){
+    schema.unshift({key:"__toolSubtype__", label:"Subtipo (Herramientas)", kind:"tool-subtype"});
+  }
+  // Asegura "Tienda web"
+  if(!schema.some(s=>s.key==='origin')) schema.push({key:"origin",label:"Tienda web",kind:"facet"});
+
+  const items = PRODUCTS.filter(p=> p.type===type);
+  const facetOptions = key => [...new Set((key==='origin'? PRODUCTS: items).map(p=> String(p[key]??'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
+  const rangeBounds = (key,defMin,defMax)=>{
+    const arr = items.map(p=>+p[key]).filter(v=>!isNaN(v));
+    return [arr.length?Math.min(...arr):defMin, arr.length?Math.max(...arr):defMax];
+  };
+
+  state.facetFilters[type] = state.facetFilters[type] || {};
+  state.rangeFilters[type] = state.rangeFilters[type] || {};
+
+  filtersBox.innerHTML = '';
+  schema.forEach(sec=>{
+    const box = document.createElement('div'); box.className='section';
+    const title = document.createElement('div'); title.className='title'; title.textContent = sec.label; box.appendChild(title);
+
+    if(sec.kind==='tool-subtype'){
+      const sel = document.createElement('select'); sel.size=4;
+      const toolTypes = ["Multiherramientas","Cuchillos","Hachas"].filter(t=> t==="Hachas" ? true : true);
+      sel.innerHTML = toolTypes.map(t=>`<option value="${t}" ${t===type?'selected':''}>${t}</option>`).join('');
+      sel.addEventListener('change', ()=>{
+        state.activeType = sel.value; persist(); buildFilters(); apply(); buildTypeMenu();
+      });
+      box.appendChild(sel);
+      filtersBox.appendChild(box);
+      return;
+    }
+
+    if(sec.kind==='facet'){
+      const srch = document.createElement('input'); srch.type='search'; srch.placeholder=`Buscar ${sec.label.toLowerCase()}...`;
+      srch.value = state.facetFilters[type][sec.key]?.search || '';
+      box.appendChild(srch);
+
+      const sel = document.createElement('select'); sel.size = 6;
+      const all = facetOptions(sec.key);
+      const render = needle=>{
+        sel.innerHTML = `<option value="">(cualquiera)</option>` + all.filter(v=>!needle || v.toLowerCase().includes(needle.toLowerCase())).map(v=>`<option value="${v}">${v}</option>`).join('');
+        const saved = state.facetFilters[type][sec.key]?.value || '';
+        if(saved) sel.value = saved;
+      };
+      render(srch.value);
+
+      srch.addEventListener('input', ()=>{
+        state.facetFilters[type][sec.key] = state.facetFilters[type][sec.key] || {};
+        state.facetFilters[type][sec.key].search = srch.value;
+        render(srch.value); persist();
+      });
+      sel.addEventListener('change', ()=>{
+        state.facetFilters[type][sec.key] = state.facetFilters[type][sec.key] || {};
+        state.facetFilters[type][sec.key].value = sel.value;
+        persist();
+      });
+
+      box.appendChild(sel);
+      const note = document.createElement('div'); note.className='subnote'; note.textContent='Elige una opción o deja "(cualquiera)".';
+      box.appendChild(note);
+    }
+
+    if(sec.kind==='range'){
+      const [min,max] = rangeBounds(sec.key, sec.min, sec.max);
+      const saved = state.rangeFilters[type][sec.key] || {min,max};
+
+      const row = document.createElement('div'); row.className='inline';
+      const L=document.createElement('div'), R=document.createElement('div');
+      const n1=document.createElement('input'), n2=document.createElement('input');
+      n1.type='number'; n2.type='number'; n1.min=min; n1.max=max; n2.min=min; n2.max=max; n1.step=sec.step||1; n2.step=sec.step||1; n1.value=saved.min; n2.value=saved.max;
+      L.appendChild(n1); R.appendChild(n2); row.appendChild(L); row.appendChild(R); box.appendChild(row);
+
+      const r1=document.createElement('input'), r2=document.createElement('input');
+      r1.type='range'; r2.type='range'; r1.min=min; r1.max=max; r2.min=min; r2.max=max; r1.step=sec.step||1; r2.step=sec.step||1; r1.value=saved.min; r2.value=saved.max;
+      box.appendChild(r1); box.appendChild(r2);
+
+      const sync=()=>{
+        let lo=Math.min(+n1.value,+n2.value), hi=Math.max(+n1.value,+n2.value);
+        lo=Math.max(min,Math.min(lo,max)); hi=Math.max(min,Math.min(hi,max));
+        n1.value=lo; n2.value=hi; r1.value=lo; r2.value=hi;
+        state.rangeFilters[type][sec.key]={min:lo,max:hi}; persist();
+      };
+      [n1,n2].forEach(i=> i.addEventListener('change', sync));
+      r1.addEventListener('input',e=>{ n1.value=e.target.value; sync(); });
+      r2.addEventListener('input',e=>{ n2.value=e.target.value; sync(); });
+    }
+
+    filtersBox.appendChild(box);
+  });
+}
+
+/* ====== Filtrado + render ====== */
+function apply(){
+  const type = state.activeType;
+  let res = PRODUCTS.filter(p=> p.type===type);
+
+  const q = ($('#q').value||'').toLowerCase();
+  if(q) res = res.filter(p => [p.name,p.desc,p.brand,p.material,p.category,p.type].some(x=>(x||'').toLowerCase().includes(q)));
+
+  const ff = state.facetFilters[type] || {};
+  for(const k in ff){ const val = (ff[k]?.value||'').trim(); if(val) res = res.filter(p => String(p[k]||'') === val); }
+  const rf = state.rangeFilters[type] || {};
+  for(const k in rf){ const lo=+rf[k].min, hi=+rf[k].max; res = res.filter(p => { const v=+p[k]; return !isNaN(v) && v>=lo && v<=hi; }); }
+
+  renderGrid(res);
+}
+
+function renderGrid(list){
+  document.getElementById('counter').textContent = `${list.length} resultados`;
+  document.getElementById('typeName').textContent = state.activeType || '—';
+  document.getElementById('packName').textContent = packLabel(state.pack);
+  document.getElementById('envName').textContent = state.env;
+
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  if(list.length===0){ document.getElementById('empty').style.display='block'; return; }
+  else{ document.getElementById('empty').style.display='none'; }
+
+  const frag = document.createDocumentFragment();
+  list.forEach(p=>{
+    const card = document.createElement('article'); card.className='card';
+    card.innerHTML = `
+      <div class="img"><img src="${p.image}" alt="${p.name}"></div>
+      <div class="bodyCard">
+        <div class="title">
+          <h4 style="margin:0;font-size:14px">${p.name}</h4>
+          <span class="badge ${badgeClass(p.origin)}">${p.origin}</span>
+        </div>
+        <div class="specs">
+          <span class="price">${fmtPrice(p.price)}</span>
+          <span>· ${p.weight_g ?? '-'}g</span>
+          ${p.volume_l!=null?`<span>· ${p.volume_l}L</span>`:''}
+          ${p.blade_length_cm!=null?`<span>· Hoja ${p.blade_length_cm}cm</span>`:''}
+          ${p.lumens!=null?`<span>· ${p.lumens} lm</span>`:''}
+          ${p.filter_capacity_l!=null?`<span>· ${p.filter_capacity_l}L filtrado</span>`:''}
+          ${p.power_w!=null?`<span>· ${p.power_w}W</span>`:''}
+          <span>· ${p.material||'-'}</span>
+          <span>· ★ ${p.rating}</span>
+        </div>
+        <div class="muted" style="min-height:36px">${p.desc}</div>
+      </div>
+      <div class="foot">
+        <a class="btn ghost" target="_blank" rel="noopener" href="${p.link}">Ver en tienda</a>
+        <button class="btn" disabled>Demo</button>
+      </div>`;
+    frag.appendChild(card);
+  });
+  grid.appendChild(frag);
+}
+
+function badgeClass(origin){
+  return {"Amazon":"amazon","Temu":"temu","AliExpress":"aliexpress","Decathlon":"decathlon","Mildot":"mildot","Sherman":"sherman"}[origin] || 'amazon';
+}
+function fmtPrice(v){ return (v%1===0)? `${v}€` : `${v.toFixed(2)}€`; }
+</script>
+</body>
+</html>

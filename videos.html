@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Mochila72 · Vídeos</title>
+<style>
+:root{
+  --verde:#4CAF50; --naranja:#FF6B00; --negro:#121212; --borde:rgba(255,255,255,.12);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:linear-gradient(180deg,#0f120f,#151515);color:#eee;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}
+a{color:inherit;text-decoration:none}
+.btn{background:var(--naranja);color:#fff;border:none;border-radius:10px;padding:8px 10px;font-weight:800;cursor:pointer}
+.btn.ghost{background:transparent;border:1px solid var(--borde);color:#ddd}
+.badge{background:#1f1f1f;border:1px solid var(--borde);padding:2px 8px;border-radius:999px;font-size:12px}
+
+/* Top */
+.top{position:sticky;top:0;z-index:40;display:grid;grid-template-rows:10vh 6.5vh;border-bottom:1px solid var(--borde);background:linear-gradient(180deg,rgba(0,0,0,.75),rgba(0,0,0,.55))}
+.banner{position:relative;height:10vh;overflow:hidden;background:url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=70') center/cover no-repeat}
+.banner::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.65),rgba(0,0,0,.35))}
+.logo{position:absolute;inset:0;display:flex;align-items:center;gap:10px;padding:0 14px;font-weight:900}
+.logoDot{width:28px;height:28px;border-radius:8px;background:var(--verde);display:grid;place-items:center;color:#000}
+.topbar{display:grid;grid-template-columns:1fr 1fr 320px;gap:8px;align-items:center;padding:6px 10px;height:6.5vh}
+.pills{display:flex;gap:6px;align-items:center;overflow:auto}
+.pill{padding:8px 10px;border-radius:999px;border:1px solid var(--borde);background:#161616;cursor:pointer;white-space:nowrap}
+.pill.active{background:rgba(255,107,0,.2);border-color:var(--naranja)}
+.search{display:flex;gap:6px;align-items:center}
+.search input{flex:1;padding:10px;border-radius:10px;border:1px solid var(--borde);background:#1a1a1a;color:#eee}
+.env{display:flex;gap:6px;align-items:center;justify-content:flex-end}
+
+/* Body */
+.body{height:calc(100vh - 16.5vh);display:grid;grid-template-columns:1fr;gap:10px;padding:10px}
+@media(min-width:1160px){.body{grid-template-columns:260px 1fr}}
+aside{background:#121212;border:1px solid var(--borde);border-radius:12px;overflow:auto}
+main{background:#121212;border:1px solid var(--borde);border-radius:12px;padding:10px;display:flex;flex-direction:column;min-width:0}
+.h3{font-weight:900;margin:8px 0 10px}
+.section{border:1px solid var(--borde);border-radius:10px;padding:8px;margin-bottom:8px;background:#151515}
+.section .title{font-weight:900;margin-bottom:6px}
+.section select,.section input[type="search"],.section input[type="number"],.section input[type="range"]{width:100%;padding:8px;border-radius:8px;border:1px solid var(--borde);background:#1a1a1a;color:#eee}
+.inline{display:flex;gap:8px}
+.inline>*{flex:1}
+
+/* Chips filtros activos */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.chip{background:#1b1b1b;border:1px solid var(--borde);padding:4px 8px;border-radius:999px;font-size:12px}
+.chip button{margin-left:6px;background:transparent;border:none;color:#aaa;cursor:pointer}
+
+/* Grid vídeos */
+.info{display:flex;justify-content:space-between;align-items:center;color:#9aa;font-size:14px;margin-bottom:8px}
+.grid{display:grid;grid-template-columns:repeat(1,1fr);gap:10px;overflow:auto}
+@media(min-width:720px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1280px){.grid{grid-template-columns:repeat(3,1fr)}}
+.card{background:#141414;border:1px solid var(--borde);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.thumb{aspect-ratio:16/9;background:#0d0d0d;overflow:hidden}
+.thumb img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+.card:hover .thumb img{transform:scale(1.04)}
+.cardBody{padding:10px;display:flex;flex-direction:column;gap:6px}
+.meta{display:flex;gap:8px;flex-wrap:wrap;color:#aab;font-size:12px}
+.actions{display:flex;gap:8px;margin-top:6px}
+
+/* Modal vídeo */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;padding:20px;z-index:100}
+.modalInner{background:#000;border-radius:12px;max-width:960px;width:100%;overflow:hidden}
+.modalHead{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#111;color:#eee}
+.modalBody{position:relative;padding-top:56.25%}
+.modalBody iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+</style>
+</head>
+<body>
+
+<!-- TOP -->
+<div class="top">
+  <div class="banner"><div class="logo"><div class="logoDot">M72</div> Vídeos destacados · Supervivencia (modo prueba)</div></div>
+  <div class="topbar">
+    <div class="pills" id="catMenu"></div>
+    <div class="search">
+      <input id="q" type="search" placeholder="Buscar: hoguera, pesca, afilar cuchillos..." list="dl">
+      <datalist id="dl"></datalist>
+      <button class="btn" id="btnSearch">Buscar</button>
+      <button class="btn ghost" id="btnReset">Reset</button>
+    </div>
+    <div class="env">
+      <span class="badge">Entorno</span>
+      <button class="pill" data-env="Urbano" id="envU">Urbano</button>
+      <button class="pill" data-env="Campo" id="envC">Campo</button>
+      <a class="btn ghost" href="guias.html">Ir a Guías</a>
+    </div>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="body">
+  <aside>
+    <div style="padding:10px">
+      <div class="h3">Filtros</div>
+
+      <div class="section">
+        <div class="title">Nivel</div>
+        <select id="fLevel">
+          <option value="">(cualquiera)</option>
+          <option>Básico</option><option>Intermedio</option><option>Avanzado</option>
+        </select>
+      </div>
+
+      <div class="section">
+        <div class="title">Duración (min)</div>
+        <div class="inline">
+          <input id="fDurMin" type="number" min="0" max="240" value="0">
+          <input id="fDurMax" type="number" min="5" max="240" value="240">
+        </div>
+        <input id="fRangeMin" type="range" min="0" max="240" value="0">
+        <input id="fRangeMax" type="range" min="5" max="240" value="240">
+      </div>
+
+      <div class="section">
+        <div class="title">Idioma</div>
+        <select id="fLang">
+          <option value="">(cualquiera)</option>
+          <option>ES</option><option>EN</option>
+        </select>
+      </div>
+
+      <div class="section">
+        <div class="title">Tienda (si aplica)</div>
+        <select id="fOrigin">
+          <option value="">(cualquiera)</option>
+          <option>Amazon</option><option>Temu</option><option>AliExpress</option><option>Decathlon</option><option>Mildot</option><option>Sherman</option>
+        </select>
+        <div style="font-size:12px;color:#9ab;margin-top:4px">Para vídeos vinculados a productos</div>
+      </div>
+
+      <button class="btn" id="apply">Aplicar</button>
+    </div>
+  </aside>
+
+  <main>
+    <div class="info">
+      <div>Categoria: <strong id="catName">Todas</strong> · Entorno: <strong id="envName">—</strong></div>
+      <div id="count">0 vídeos</div>
+    </div>
+    <div class="chips" id="chips"></div>
+    <div id="grid" class="grid"></div>
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modalInner">
+    <div class="modalHead"><div id="modalTitle">Reproducir</div><button class="btn ghost" id="closeModal">Cerrar</button></div>
+    <div class="modalBody" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+/* ===== DATA ===== */
+const VIDEOS = [
+  // id = YouTube video id para thumbnail/embed
+  {id:'hoguera1', yt:'y5nKxG9vVjE', title:'Cómo encender una hoguera con ferrocerio', desc:'Técnicas básicas, yesca natural y seguridad.', category:'Fuego', level:'Básico', env:'Campo', lang:'ES', durationMin:9, tags:['ferrocerio','yesca','fuego'], relatedGuideId:'g-hoguera'},
+  {id:'hoguera2', yt:'l1z1J3m3abc', title:'Hoguera segura en entorno urbano (barbacoa/azotea)', desc:'Normas, prevención, alternativas al fuego abierto.', category:'Fuego', level:'Intermedio', env:'Urbano', lang:'ES', durationMin:7, tags:['seguridad','urbano'], relatedGuideId:'g-hoguera'},
+
+  {id:'agua1', yt:'rAq1v0U8Qcc', title:'Filtrar agua con LifeStraw/Sawyer', desc:'Uso, mantenimiento y errores comunes.', category:'Agua', level:'Básico', env:'Campo', lang:'ES', durationMin:8, tags:['filtro','agua','lifestraw'], relatedGuideId:'g-agua'},
+  {id:'agua2', yt:'9Qy4QzQf0xy', title:'Potabilización en ciudad: pastillas y hervido', desc:'Qué usar y cuándo en entorno urbano.', category:'Agua', level:'Básico', env:'Urbano', lang:'ES', durationMin:6, tags:['pastillas','hervir'], relatedGuideId:'g-agua'},
+
+  {id:'pesca1', yt:'JvZb7m0aaT8', title:'Kit de pesca compacto y aparejos básicos', desc:'Montaje de línea, anzuelos y señuelos.', category:'Caza/Pesca', level:'Intermedio', env:'Campo', lang:'ES', durationMin:12, tags:['pesca','kit'], relatedGuideId:'g-pesca'},
+  {id:'pesca2', yt:'iQ2f_7vvzzz', title:'Cómo improvisar una caña con ramas y paracord', desc:'Materiales mínimos y técnica.', category:'Caza/Pesca', level:'Intermedio', env:'Campo', lang:'ES', durationMin:11, tags:['paracord','improvisar'], relatedGuideId:'g-pesca'},
+
+  {id:'herr1', yt:'4sUZQ1kMM00', title:'Cómo afilar un cuchillo en campo', desc:'Piedra, ángulos, mantenimiento.', category:'Herramientas', level:'Básico', env:'Campo', lang:'ES', durationMin:10, tags:['cuchillo','afilar'], relatedGuideId:'g-afilar'},
+  {id:'herr2', yt:'9m7tTRtR2X2', title:'Multiherramienta: 10 usos críticos', desc:'Casos reales de uso y seguridad.', category:'Herramientas', level:'Básico', env:'Urbano', lang:'ES', durationMin:8, tags:['multiherramienta']},
+
+  {id:'ref1', yt:'3E5H1B9ccAA', title:'Montar un tarp en 5 configuraciones', desc:'Refugio rápido para lluvia/viento.', category:'Refugio', level:'Intermedio', env:'Campo', lang:'ES', durationMin:13, tags:['tarp','nudos'], relatedGuideId:'g-tarp'},
+  {id:'ref2', yt:'B1m2zkR2ppp', title:'Refugio urbano: espacios seguros', desc:'Elección de ubicación, riesgos y permisos.', category:'Refugio', level:'Intermedio', env:'Urbano', lang:'ES', durationMin:9, tags:['urbano','seguridad']},
+
+  {id:'nav1', yt:'eU4qk5LLLaa', title:'Orientación básica con mapa y brújula', desc:'Rumbos, declinación, práctica.', category:'Navegación', level:'Básico', env:'Campo', lang:'ES', durationMin:14, tags:['brújula','mapa'], relatedGuideId:'g-nav'},
+
+  {id:'med1', yt:'9vbQq1XXaaA', title:'Primeros auxilios: control de hemorragias', desc:'Torniquete, compresión, seguridad.', category:'Primeros auxilios', level:'Intermedio', env:'Urbano', lang:'ES', durationMin:10, tags:['hemorragias','botiquín'], relatedGuideId:'g-hem'},
+  {id:'med2', yt:'xP2LeZ2Labc', title:'Plantas útiles básicas (identificación segura)', desc:'Precauciones, usos, mitos comunes.', category:'Plantas y recursos', level:'Básico', env:'Campo', lang:'ES', durationMin:9, tags:['plantas','identificación'], relatedGuideId:'g-plantas'},
+];
+/* Catálogo visible para el menú */
+const CATEGORIES = ["Todas","Agua","Fuego","Refugio","Herramientas","Navegación","Primeros auxilios","Caza/Pesca","Plantas y recursos"];
+
+/* ===== STATE & PERSIST ===== */
+const SKEY='m72_vid_';
+const state = {
+  env: localStorage.getItem(SKEY+'env') || 'Urbano',
+  cat: localStorage.getItem(SKEY+'cat') || 'Todas',
+  q: localStorage.getItem(SKEY+'q') || '',
+  level: localStorage.getItem(SKEY+'level') || '',
+  lang: localStorage.getItem(SKEY+'lang') || '',
+  origin: localStorage.getItem(SKEY+'origin') || '',
+  dur:{min:+(localStorage.getItem(SKEY+'dmin')||0), max:+(localStorage.getItem(SKEY+'dmax')||240)}
+};
+function persist(){
+  localStorage.setItem(SKEY+'env', state.env);
+  localStorage.setItem(SKEY+'cat', state.cat);
+  localStorage.setItem(SKEY+'q', state.q);
+  localStorage.setItem(SKEY+'level', state.level);
+  localStorage.setItem(SKEY+'lang', state.lang);
+  localStorage.setItem(SKEY+'origin', state.origin);
+  localStorage.setItem(SKEY+'dmin', state.dur.min);
+  localStorage.setItem(SKEY+'dmax', state.dur.max);
+}
+
+/* ===== UI HOOKS ===== */
+const $=s=>document.querySelector(s);
+const grid=$('#grid'), catMenu=$('#catMenu'), chips=$('#chips');
+const envU=$('#envU'), envC=$('#envC');
+const q=$('#q'), fLevel=$('#fLevel'), fLang=$('#fLang'), fOrigin=$('#fOrigin');
+const fDurMin=$('#fDurMin'), fDurMax=$('#fDurMax'), fRangeMin=$('#fRangeMin'), fRangeMax=$('#fRangeMax');
+
+function init(){
+  // Menú categorías
+  catMenu.innerHTML = CATEGORIES.map(c=>`<button class="pill ${state.cat===c?'active':''}" data-cat="${c}">${c}</button>`).join('');
+  catMenu.querySelectorAll('[data-cat]').forEach(b=> b.addEventListener('click',()=>{ state.cat=b.dataset.cat; persist(); build(); }));
+  // Entorno
+  function paintEnv(){ envU.classList.toggle('active',state.env==='Urbano'); envC.classList.toggle('active',state.env==='Campo'); $('#envName').textContent=state.env; }
+  [envU,envC].forEach(b=> b.addEventListener('click',()=>{ state.env=b.dataset.env; persist(); paintEnv(); build(); }));
+  paintEnv();
+  // Search + filtros
+  q.value = state.q; q.addEventListener('keydown',e=>{ if(e.key==='Enter'){ state.q=q.value.trim(); persist(); build(); }});
+  $('#btnSearch').addEventListener('click',()=>{ state.q=q.value.trim(); persist(); build(); });
+  $('#btnReset').addEventListener('click',()=>{ state.q=''; q.value=''; state.level=''; fLevel.value=''; state.lang=''; fLang.value=''; state.origin=''; fOrigin.value=''; state.dur={min:0,max:240}; syncDurUI(); persist(); build(); });
+  fLevel.value = state.level; fLevel.addEventListener('change',()=>{ state.level=fLevel.value; persist(); build(); });
+  fLang.value = state.lang; fLang.addEventListener('change',()=>{ state.lang=fLang.value; persist(); build(); });
+  fOrigin.value = state.origin; fOrigin.addEventListener('change',()=>{ state.origin=fOrigin.value; persist(); build(); });
+  // Duración
+  function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
+  function syncDurUI(){
+    fDurMin.value = state.dur.min; fDurMax.value = state.dur.max;
+    fRangeMin.value = state.dur.min; fRangeMax.value = state.dur.max;
+  }
+  syncDurUI();
+  [fDurMin,fDurMax].forEach(i=> i.addEventListener('change',()=>{ state.dur.min=clamp(+fDurMin.value,0,240); state.dur.max=clamp(+fDurMax.value,0,240); if(state.dur.min>state.dur.max) [state.dur.min,state.dur.max]=[state.dur.max,state.dur.min]; syncDurUI(); persist(); build(); }));
+  fRangeMin.addEventListener('input',()=>{ state.dur.min=+fRangeMin.value; if(state.dur.min>state.dur.max) state.dur.max=state.dur.min; syncDurUI(); persist(); build(); });
+  fRangeMax.addEventListener('input',()=>{ state.dur.max=+fRangeMax.value; if(state.dur.max<state.dur.min) state.dur.min=state.dur.max; syncDurUI(); persist(); build(); });
+
+  // Datalist
+  $('#dl').innerHTML = VIDEOS.map(v=>`<option value="${v.title}">`).join('');
+
+  build();
+}
+
+function build(){
+  // chips
+  const ch=[];
+  if(state.cat!=='Todas') ch.push(['cat',`Categoría: ${state.cat}`]);
+  if(state.q) ch.push(['q',`Texto: “${state.q}”`]);
+  if(state.level) ch.push(['level',`Nivel: ${state.level}`]);
+  if(state.lang) ch.push(['lang',`Idioma: ${state.lang}`]);
+  if(state.origin) ch.push(['origin',`Tienda: ${state.origin}`]);
+  if(state.dur.min>0 || state.dur.max<240) ch.push(['dur',`Duración: ${state.dur.min}–${state.dur.max} min`]);
+  chips.innerHTML = ch.map(([k,txt])=>`<span class="chip">${txt}<button data-x="${k}">✕</button></span>`).join('');
+  chips.querySelectorAll('[data-x]').forEach(b=> b.addEventListener('click',()=>{
+    const k=b.dataset.x; if(k==='cat') state.cat='Todas';
+    if(k==='q') state.q=''; if(k==='level') state.level=''; if(k==='lang') state.lang='';
+    if(k==='origin') state.origin=''; if(k==='dur') state.dur={min:0,max:240};
+    persist(); init(); // rebuild everything to sync UI
+  }));
+
+  // filtro principal
+  let list = VIDEOS.slice();
+  if(state.cat!=='Todas') list = list.filter(v=> v.category===state.cat);
+  if(state.env) list = list.filter(v=> v.env===state.env);
+  if(state.level) list = list.filter(v=> v.level===state.level);
+  if(state.lang) list = list.filter(v=> v.lang===state.lang);
+  if(state.q){ const s=state.q.toLowerCase(); list = list.filter(v=> (v.title+v.desc+v.tags.join(' ')).toLowerCase().includes(s)); }
+  list = list.filter(v=> v.durationMin>=state.dur.min && v.durationMin<=state.dur.max);
+  // (origin es opcional — si el vídeo es de producto concreto, en el futuro lo mapeamos)
+
+  $('#count').textContent = `${list.length} vídeos`;
+  $('#catName').textContent = state.cat;
+
+  // grid
+  grid.innerHTML = list.map(v=>{
+    const thumb = `https://img.youtube.com/vi/${v.yt}/hqdefault.jpg`;
+    return `<article class="card">
+      <div class="thumb"><img src="${thumb}" alt="${v.title}"></div>
+      <div class="cardBody">
+        <strong>${v.title}</strong>
+        <div style="opacity:.85">${v.desc}</div>
+        <div class="meta">
+          <span class="badge">${v.category}</span>
+          <span class="badge">${v.env}</span>
+          <span class="badge">${v.level}</span>
+          <span class="badge">${v.lang}</span>
+          <span class="badge">${v.durationMin} min</span>
+        </div>
+        <div class="actions">
+          <button class="btn" data-play="${v.yt}" data-title="${v.title}">Ver</button>
+          ${v.relatedGuideId?`<a class="btn ghost" href="guias.html?open=${encodeURIComponent(v.relatedGuideId)}">Ver guía</a>`:''}
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+
+  // play handlers
+  grid.querySelectorAll('[data-play]').forEach(b=>{
+    b.addEventListener('click',()=>{
+      openModal(b.dataset.play, b.dataset.title);
+    });
+  });
+}
+
+function openModal(yt,title){
+  const m = document.getElementById('modal');
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = `<iframe src="https://www.youtube.com/embed/${yt}?autoplay=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+  m.style.display='flex';
+}
+document.getElementById('closeModal').addEventListener('click',()=>{
+  document.getElementById('modal').style.display='none';
+  document.getElementById('modalBody').innerHTML='';
+});
+
+// kick-off
+init();
+</script>
+</body>
+</html>

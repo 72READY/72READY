@@ -1,0 +1,94 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #111;
+  color: #eee;
+  text-align: center;
+}
+
+header {
+  background-color: #222;
+  padding: 20px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 2em;
+  color: #00ff88;
+}
+
+.mochilas-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+  padding: 20px;
+}
+
+.mochila-card {
+  background-color: #1e1e1e;
+  border-radius: 12px;
+  width: 180px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.mochila-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px 12px 0 0;
+}
+
+.mochila-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px #00ff88;
+}
+
+footer {
+  background-color: #222;
+  padding: 15px;
+}
+
+.boton {
+  display: inline-block;
+  background-color: #00ff88;
+  color: #111;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.boton:hover {
+  background-color: #00cc66;
+}
+
+/* --- Sección de Guías --- */
+.guias-container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+}
+
+.video-card {
+  max-width: 500px;
+  background-color: #1a1a1a;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+@media (max-width: 800px) {
+  .mochilas-container {
+    flex-wrap: wrap;
+  }
+  .mochila-card {
+    width: 45%;
+  }
+}
+
+@media (max-width: 500px) {
+  .mochila-card {
+    width: 90%;
+  }
+}
